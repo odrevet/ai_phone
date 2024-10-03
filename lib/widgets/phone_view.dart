@@ -49,9 +49,8 @@ class _PhoneViewState extends State<PhoneView> {
         Column(
           children: <Widget>[
             InitSpeechWidget(_hasSpeech, initSpeechState),
-            SpeechControlWidget(_hasSpeech, speech.isListening, startListening,
-                stopListening, cancelListening),
-            SessionOptionsWidget(
+            //SpeechControlWidget(_hasSpeech, speech.isListening, startListening, stopListening, cancelListening),
+            /*SessionOptionsWidget(
               _currentLocaleId,
               _switchLang,
               _localeNames,
@@ -60,7 +59,7 @@ class _PhoneViewState extends State<PhoneView> {
               _listenForController,
               _onDevice,
               _switchOnDevice,
-            ),
+            ),*/
           ],
         ),
         Container(
@@ -82,7 +81,7 @@ class _PhoneViewState extends State<PhoneView> {
                   spreadRadius: level * 1.5,
                   color: Colors.black.withOpacity(.05))
             ],
-            color: Colors.white,
+            color: speech.isListening ? Colors.green : Colors.white,
             borderRadius: const BorderRadius.all(Radius.circular(10)),
           ),
           child: IconButton(
@@ -94,7 +93,6 @@ class _PhoneViewState extends State<PhoneView> {
           flex: 1,
           child: ErrorWidget(lastError: lastError),
         ),
-        SpeechStatusWidget(speech: speech),
       ]),
     );
   }
@@ -427,31 +425,3 @@ class InitSpeechWidget extends StatelessWidget {
   }
 }
 
-/// Display the current status of the listener
-class SpeechStatusWidget extends StatelessWidget {
-  const SpeechStatusWidget({
-    Key? key,
-    required this.speech,
-  }) : super(key: key);
-
-  final SpeechToText speech;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 20),
-      color: Theme.of(context).colorScheme.surface,
-      child: Center(
-        child: speech.isListening
-            ? const Text(
-                "I'm listening...",
-                style: TextStyle(fontWeight: FontWeight.bold),
-              )
-            : const Text(
-                'Not listening',
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
-      ),
-    );
-  }
-}
