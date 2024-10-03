@@ -56,7 +56,6 @@ class _PhoneViewState extends State<PhoneView> {
               _switchLang,
               _localeNames,
               _logEvents,
-              _switchLogging,
               _pauseForController,
               _listenForController,
               _onDevice,
@@ -108,7 +107,6 @@ class _PhoneViewState extends State<PhoneView> {
   // This is called each time the users wants to start a new speech
   // recognition session
   void startListening() {
-    _logEvent('start listening');
     lastWords = '';
     lastError = '';
     final pauseFor = int.tryParse(_pauseForController.text);
@@ -136,7 +134,6 @@ class _PhoneViewState extends State<PhoneView> {
   }
 
   void stopListening() {
-    _logEvent('stop');
     speech.stop();
     setState(() {
       level = 0.0;
@@ -144,7 +141,6 @@ class _PhoneViewState extends State<PhoneView> {
   }
 
   void cancelListening() {
-    _logEvent('cancel');
     speech.cancel();
     setState(() {
       level = 0.0;
@@ -166,7 +162,7 @@ class _PhoneViewState extends State<PhoneView> {
     if (result.finalResult) {
       widget.addConversation("user", result.recognizedWords);
 
-      sendChatCompletion(widget.conversationHistory).then((response) {
+      sendChatCompletion(widget.conversationHistory, 'assistant').then((response) {
         String messageContent = response['choices'][0]['message']['content'];
 
         widget.addConversation("assistant", messageContent);
@@ -178,11 +174,14 @@ class _PhoneViewState extends State<PhoneView> {
         sendTtsGenerateRequest(messageContent).then((url) {
           playAudio(url);
         }).catchError((error) {
-          print('An error occurred: $error');
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('An error occurred: $error')),
+          );
         });
       }).catchError((error) {
-        // Handle any errors that occur during the request
-        print('An error occurred: $error');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('An error occurred: $error')),
+        );
       });
     }
   }
@@ -190,23 +189,18 @@ class _PhoneViewState extends State<PhoneView> {
   void soundLevelListener(double level) {
     minSoundLevel = min(minSoundLevel, level);
     maxSoundLevel = max(maxSoundLevel, level);
-    // _logEvent('sound level $level: $minSoundLevel - $maxSoundLevel ');
     setState(() {
       this.level = level;
     });
   }
 
   void errorListener(SpeechRecognitionError error) {
-    _logEvent(
-        'Received error status: $error, listening: ${speech.isListening}');
     setState(() {
       lastError = '${error.errorMsg} - ${error.permanent}';
     });
   }
 
   void statusListener(String status) {
-    _logEvent(
-        'Received listener status: $status, listening: ${speech.isListening}');
     setState(() {
       lastStatus = status;
     });
@@ -215,20 +209,6 @@ class _PhoneViewState extends State<PhoneView> {
   void _switchLang(selectedVal) {
     setState(() {
       _currentLocaleId = selectedVal;
-    });
-    debugPrint(selectedVal);
-  }
-
-  void _logEvent(String eventDescription) {
-    if (_logEvents) {
-      var eventTime = DateTime.now().toIso8601String();
-      debugPrint('$eventTime $eventDescription');
-    }
-  }
-
-  void _switchLogging(bool? val) {
-    setState(() {
-      _logEvents = val ?? false;
     });
   }
 
@@ -254,12 +234,6 @@ class RecognitionResultsWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: <Widget>[
-        const Center(
-          child: Text(
-            'Recognized Words',
-            style: TextStyle(fontSize: 22.0),
-          ),
-        ),
         Expanded(
           child: Stack(
             children: <Widget>[
@@ -400,7 +374,6 @@ class SessionOptionsWidget extends StatelessWidget {
       this.switchLang,
       this.localeNames,
       this.logEvents,
-      this.switchLogging,
       this.pauseForController,
       this.listenForController,
       this.onDevice,
@@ -410,7 +383,6 @@ class SessionOptionsWidget extends StatelessWidget {
 
   final String currentLocaleId;
   final void Function(String?) switchLang;
-  final void Function(bool?) switchLogging;
   final void Function(bool?) switchOnDevice;
   final TextEditingController pauseForController;
   final TextEditingController listenForController;
@@ -468,11 +440,6 @@ class SessionOptionsWidget extends StatelessWidget {
               Checkbox(
                 value: onDevice,
                 onChanged: switchOnDevice,
-              ),
-              const Text('Log events: '),
-              Checkbox(
-                value: logEvents,
-                onChanged: switchLogging,
               ),
             ],
           ),

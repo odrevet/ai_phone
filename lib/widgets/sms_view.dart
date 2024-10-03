@@ -8,10 +8,9 @@ class SMSView extends StatefulWidget {
   final Function addConversation;
 
   const SMSView(
-      {Key? key,
+      {super.key,
       required this.conversationHistory,
-      required this.addConversation})
-      : super(key: key);
+      required this.addConversation});
 
   @override
   _SMSViewState createState() => _SMSViewState();
@@ -19,7 +18,7 @@ class SMSView extends StatefulWidget {
 
 class _SMSViewState extends State<SMSView> {
   final TextEditingController _messageController = TextEditingController();
-  ScrollController _scrollController = ScrollController();
+  final ScrollController _scrollController = ScrollController();
 
   @override
   void initState() {
@@ -70,16 +69,16 @@ class _SMSViewState extends State<SMSView> {
                                 ? BubbleType.receiverBubble
                                 : BubbleType.sendBubble),
                         backGroundColor: message['role'] == 'user'
-                            ? Color(0xffE7E7ED)
+                            ? const Color(0xffE7E7ED)
                             : Colors.grey,
-                        margin: EdgeInsets.only(top: 20),
+                        margin: const EdgeInsets.only(top: 20),
                         child: Container(
                           constraints: BoxConstraints(
                             maxWidth: MediaQuery.of(context).size.width * 0.7,
                           ),
                           child: Text(
                             message['content'] ?? '',
-                            style: TextStyle(color: Colors.black),
+                            style: const TextStyle(color: Colors.black),
                           ),
                         ),
                       );
@@ -122,7 +121,7 @@ class _SMSViewState extends State<SMSView> {
 
       _messageController.clear();
 
-      sendChatCompletion(widget.conversationHistory).then((response) {
+      sendChatCompletion(widget.conversationHistory, "assistant").then((response) {
         String messageContent = response['choices'][0]['message']['content'];
         widget.addConversation("assistant", messageContent);
         _scrollToBottom();
