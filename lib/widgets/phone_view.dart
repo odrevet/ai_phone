@@ -63,9 +63,32 @@ class _PhoneViewState extends State<PhoneView> {
             ),
           ],
         ),
-        Expanded(
-          flex: 4,
-          child: RecognitionResultsWidget(lastWords: lastWords, level: level),
+        Container(
+          color: Theme.of(context).secondaryHeaderColor,
+          child: Center(
+            child: Text(
+              lastWords,
+              textAlign: TextAlign.center,
+            ),
+          ),
+        ),
+        Container(
+          width: 140, height: 140,
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            boxShadow: [
+              BoxShadow(
+                  blurRadius: .26,
+                  spreadRadius: level * 1.5,
+                  color: Colors.black.withOpacity(.05))
+            ],
+            color: Colors.white,
+            borderRadius: const BorderRadius.all(Radius.circular(10)),
+          ),
+          child: IconButton(
+            icon: const Icon(Icons.phone),
+            onPressed: !_hasSpeech || speech.isListening ? null : startListening,
+          ),
         ),
         Expanded(
           flex: 1,
@@ -219,66 +242,6 @@ class _PhoneViewState extends State<PhoneView> {
   }
 }
 
-/// Displays the most recently recognized words and the sound level.
-class RecognitionResultsWidget extends StatelessWidget {
-  const RecognitionResultsWidget({
-    Key? key,
-    required this.lastWords,
-    required this.level,
-  }) : super(key: key);
-
-  final String lastWords;
-  final double level;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: <Widget>[
-        Expanded(
-          child: Stack(
-            children: <Widget>[
-              Container(
-                color: Theme.of(context).secondaryHeaderColor,
-                child: Center(
-                  child: Text(
-                    lastWords,
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-              ),
-              Positioned.fill(
-                bottom: 10,
-                child: Align(
-                  alignment: Alignment.bottomCenter,
-                  child: Container(
-                    width: 40,
-                    height: 40,
-                    alignment: Alignment.center,
-                    decoration: BoxDecoration(
-                      boxShadow: [
-                        BoxShadow(
-                            blurRadius: .26,
-                            spreadRadius: level * 1.5,
-                            color: Colors.black.withOpacity(.05))
-                      ],
-                      color: Colors.white,
-                      borderRadius: const BorderRadius.all(Radius.circular(50)),
-                    ),
-                    child: IconButton(
-                      icon: const Icon(Icons.mic),
-                      onPressed: () {},
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-}
-
 class HeaderWidget extends StatelessWidget {
   const HeaderWidget({
     Key? key,
@@ -309,12 +272,6 @@ class ErrorWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: <Widget>[
-        const Center(
-          child: Text(
-            'Error Status',
-            style: TextStyle(fontSize: 22.0),
-          ),
-        ),
         Center(
           child: SelectableText(lastError),
         ),
