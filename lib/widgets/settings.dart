@@ -8,7 +8,7 @@ class Settings extends StatefulWidget {
 
 class _SettingsState extends State<Settings> {
   final TextEditingController _openAIController = TextEditingController();
-  final TextEditingController _allTalkController = TextEditingController();
+  final TextEditingController _ttsController = TextEditingController();
 
   @override
   void initState() {
@@ -20,7 +20,7 @@ class _SettingsState extends State<Settings> {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
       _openAIController.text = prefs.getString('openai_api_address') ?? '';
-      _allTalkController.text =
+      _ttsController.text =
           prefs.getString('alltalk_tts_api_address') ?? '';
     });
   }
@@ -28,7 +28,7 @@ class _SettingsState extends State<Settings> {
   _saveSettings() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('openai_api_address', _openAIController.text);
-    await prefs.setString('alltalk_tts_api_address', _allTalkController.text);
+    await prefs.setString('alltalk_tts_api_address', _ttsController.text);
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text('Settings saved')),
     );
@@ -57,9 +57,9 @@ class _SettingsState extends State<Settings> {
             Text('AllTalk TTS API Address',
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
             TextField(
-              controller: _allTalkController,
+              controller: _ttsController,
               decoration: InputDecoration(
-                hintText: 'Enter AllTalk TTS API address',
+                hintText: 'Enter TTS API address',
               ),
             ),
             SizedBox(height: 20),
@@ -76,7 +76,7 @@ class _SettingsState extends State<Settings> {
   @override
   void dispose() {
     _openAIController.dispose();
-    _allTalkController.dispose();
+    _ttsController.dispose();
     super.dispose();
   }
 }

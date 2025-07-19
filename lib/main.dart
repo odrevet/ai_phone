@@ -24,6 +24,7 @@ class _SpeechSampleAppState extends State<SpeechSampleApp> {
 
   void addConversation(String role, String content) {
     setState(() {
+      content += ' /no_think'; // wip option
       conversationHistory.add({"role": role, "content": content});
     });
   }

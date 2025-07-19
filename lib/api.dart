@@ -26,35 +26,45 @@ Future<Map<String, dynamic>> sendChatCompletion(
   return jsonDecode(utf8.decode(response.bodyBytes));
 }
 
-Future<String> sendTtsGenerateRequest(String messageContent) async {
+Future<dynamic> sendTtsGenerateRequest(String messageContent) async {
   final prefs = await SharedPreferences.getInstance();
   final alltalkTtsApiAddress = prefs.getString('alltalk_tts_api_address');
 
-  final url = Uri.parse('$alltalkTtsApiAddress/api/tts-generate');
+  if (alltalkTtsApiAddress == null) {
+    print('Error: TTS API address not found in preferences');
+    return null;
+  }
 
-  // The body contains the form data, similar to the -d flags in curl
+  final url = Uri.parse('$alltalkTtsApiAddress/v1/audio/speech');
+
+  // Request body matching the OpenAI TTS API format
   final body = {
-    'text_input': messageContent,
-    'text_filtering': 'standard',
-    'character_voice_gen': 'female_01.wav',
-    'narrator_enabled': 'false',
-    'narrator_voice_gen': 'male_01.wav',
-    'text_not_inside': 'character',
-    'language': 'fr',
-    'output_file_name': 'myoutputfile',
-    'output_file_timestamp': 'true',
-    'autoplay': 'false',
-    'autoplay_volume': '0.8',
+    'model': 'tts-1',
+    'input': messageContent,
+    'voice': 'fr-FR-DeniseNeural',
+    'response_format': 'mp3',
   };
 
-  final response = await http.post(url, body: body);
+  try {
+    final response = await http.post(
+      url,
+      headers: {
+        'Authorization': 'Bearer your_api_key_here',
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode(body),
+    );
 
-  if (response.statusCode == 200) {
-    // Parse the response
-    final responseData = jsonDecode(response.body);
-    String audioUrl = responseData['output_file_url'];
-    return audioUrl;
-  } else {
-    return 'Error: ${response.statusCode}';
+    if (response.statusCode == 200) {
+      // Convert the response body bytes to Uint8List
+      return response.bodyBytes;
+    } else {
+      print('Error: TTS request failed with status ${response.statusCode}');
+      print('Response body: ${response.body}');
+      return null;
+    }
+  } catch (e) {
+    print('Error making TTS request: $e');
+    return null;
   }
 }

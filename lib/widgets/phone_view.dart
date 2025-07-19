@@ -62,7 +62,8 @@ class _PhoneViewState extends State<PhoneView> {
             ),*/
           ],
         ),
-        Container(
+        // WIP debug
+        /*Container(
           color: Theme.of(context).secondaryHeaderColor,
           child: Center(
             child: Text(
@@ -70,7 +71,7 @@ class _PhoneViewState extends State<PhoneView> {
               textAlign: TextAlign.center,
             ),
           ),
-        ),
+        ),*/
         Container(
           width: 140, height: 140,
           alignment: Alignment.center,
@@ -126,7 +127,6 @@ class _PhoneViewState extends State<PhoneView> {
   }
 
   // This is called each time the users wants to start a new speech
-  // recognition session
   void startListening() {
     lastWords = '';
     lastError = '';
@@ -139,10 +139,6 @@ class _PhoneViewState extends State<PhoneView> {
         partialResults: true,
         autoPunctuation: true,
         enableHapticFeedback: true);
-    // Note that `listenFor` is the maximum, not the minimum, on some
-    // systems recognition will be stopped before this value is reached.
-    // Similarly `pauseFor` is a maximum not a minimum and may be ignored
-    // on some devices.
     speech.listen(
       onResult: resultListener,
       listenFor: Duration(seconds: listenFor ?? 30),
@@ -168,9 +164,9 @@ class _PhoneViewState extends State<PhoneView> {
     });
   }
 
-  void playAudio(String url) async {
+  void playAudio(dynamic data) async {
     final player = AudioPlayer();
-    await player.play(UrlSource(url));
+    await player.play(BytesSource(data));
   }
 
   /// This callback is invoked each time new recognition results are
@@ -192,8 +188,21 @@ class _PhoneViewState extends State<PhoneView> {
           lastWords += messageContent;
         });
 
-        sendTtsGenerateRequest(messageContent).then((url) {
-          playAudio(url);
+        // Remove <think></think> blocks with their content
+        messageContent = messageContent.replaceAll(RegExp(r'<think>.*?</think>', dotAll: true), '');
+
+        // Remove emoticons (basic emoji characters)
+        // This regex matches most common Unicode emoji ranges
+        messageContent = messageContent.replaceAll(RegExp(r'[\u{1F600}-\u{1F64F}]|[\u{1F300}-\u{1F5FF}]|[\u{1F680}-\u{1F6FF}]|[\u{1F1E0}-\u{1F1FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]', unicode: true), '');
+
+        // Remove text-based emoticons like :), :D, :(, etc.
+        messageContent = messageContent.replaceAll(RegExp(r'[:;=]-?[)(\]\[dDoOpP\/\\|*$@]'), '');
+
+        // dynamic data supposed to be Uint8List but import error
+        sendTtsGenerateRequest(messageContent).then((dynamic data) {
+          if(data != null) {
+            playAudio(data);
+          }
         }).catchError((error) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('An error occurred: $error')),
