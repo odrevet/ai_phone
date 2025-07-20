@@ -28,14 +28,14 @@ Future<Map<String, dynamic>> sendChatCompletion(
 
 Future<dynamic> sendTtsGenerateRequest(String messageContent) async {
   final prefs = await SharedPreferences.getInstance();
-  final alltalkTtsApiAddress = prefs.getString('alltalk_tts_api_address');
+  final ttsApiAddress = prefs.getString('tts_api_address');
 
-  if (alltalkTtsApiAddress == null) {
+  if (ttsApiAddress == null) {
     print('Error: TTS API address not found in preferences');
     return null;
   }
 
-  final url = Uri.parse('$alltalkTtsApiAddress/v1/audio/speech');
+  final url = Uri.parse('$ttsApiAddress/v1/audio/speech');
 
   // Request body matching the OpenAI TTS API format
   final body = {

@@ -21,14 +21,14 @@ class _SettingsState extends State<Settings> {
     setState(() {
       _openAIController.text = prefs.getString('openai_api_address') ?? '';
       _ttsController.text =
-          prefs.getString('alltalk_tts_api_address') ?? '';
+          prefs.getString('tts_api_address') ?? '';
     });
   }
 
   _saveSettings() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('openai_api_address', _openAIController.text);
-    await prefs.setString('alltalk_tts_api_address', _ttsController.text);
+    await prefs.setString('tts_api_address', _ttsController.text);
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text('Settings saved')),
     );
@@ -54,7 +54,7 @@ class _SettingsState extends State<Settings> {
               ),
             ),
             SizedBox(height: 20),
-            Text('AllTalk TTS API Address',
+            Text('TTS API Address',
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
             TextField(
               controller: _ttsController,
