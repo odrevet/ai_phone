@@ -7,10 +7,11 @@ class SMSView extends StatefulWidget {
   final List<Map<String, String>> conversationHistory;
   final Function addConversation;
 
-  const SMSView(
-      {super.key,
-      required this.conversationHistory,
-      required this.addConversation});
+  const SMSView({
+    super.key,
+    required this.conversationHistory,
+    required this.addConversation,
+  });
 
   @override
   _SMSViewState createState() => _SMSViewState();
@@ -41,9 +42,7 @@ class _SMSViewState extends State<SMSView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('SMS View'),
-      ),
+      appBar: AppBar(title: const Text('SMS View')),
       body: Column(
         children: [
           Expanded(
@@ -65,9 +64,10 @@ class _SMSViewState extends State<SMSView> {
                             ? Alignment.topLeft
                             : Alignment.topRight,
                         clipper: ChatBubbleClipper1(
-                            type: message['role'] == 'user'
-                                ? BubbleType.receiverBubble
-                                : BubbleType.sendBubble),
+                          type: message['role'] == 'user'
+                              ? BubbleType.receiverBubble
+                              : BubbleType.sendBubble,
+                        ),
                         backGroundColor: message['role'] == 'user'
                             ? const Color(0xffE7E7ED)
                             : Colors.grey,
@@ -121,7 +121,9 @@ class _SMSViewState extends State<SMSView> {
 
       _messageController.clear();
 
-      sendChatCompletion(widget.conversationHistory, "assistant").then((response) {
+      sendChatCompletion(widget.conversationHistory, "assistant").then((
+        response,
+      ) {
         String messageContent = response['choices'][0]['message']['content'];
         widget.addConversation("assistant", messageContent);
         _scrollToBottom();

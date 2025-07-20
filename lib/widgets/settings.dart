@@ -31,42 +31,42 @@ class _SettingsState extends State<Settings> {
     await prefs.setString('openai_api_address', _openAIController.text);
     await prefs.setString('tts_api_address', _ttsController.text);
     await prefs.setBool('debug_mode', _debugMode);
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Settings saved')),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text('Settings saved')));
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Settings'),
-      ),
+      appBar: AppBar(title: Text('Settings')),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('OpenAI API Address',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+            Text(
+              'OpenAI API Address',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
             TextField(
               controller: _openAIController,
-              decoration: InputDecoration(
-                hintText: 'Enter OpenAI API address',
-              ),
+              decoration: InputDecoration(hintText: 'Enter OpenAI API address'),
             ),
             SizedBox(height: 20),
-            Text('TTS API Address',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+            Text(
+              'TTS API Address',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
             TextField(
               controller: _ttsController,
-              decoration: InputDecoration(
-                hintText: 'Enter TTS API address',
-              ),
+              decoration: InputDecoration(hintText: 'Enter TTS API address'),
             ),
             SizedBox(height: 20),
-            Text('Debug Options',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+            Text(
+              'Debug Options',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
             SizedBox(height: 8),
             CheckboxListTile(
               title: Text('Enable Debug Mode'),

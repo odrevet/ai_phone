@@ -1,6 +1,7 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'dart:convert';
 
 class Contact {
   final String id;
@@ -37,7 +38,8 @@ class Contact {
     List<String> nameParts = name.trim().split(' ');
     if (nameParts.isEmpty) return '?';
     if (nameParts.length == 1) return nameParts[0][0].toUpperCase();
-    return '${nameParts[0][0]}${nameParts[nameParts.length - 1][0]}'.toUpperCase();
+    return '${nameParts[0][0]}${nameParts[nameParts.length - 1][0]}'
+        .toUpperCase();
   }
 }
 
@@ -112,7 +114,9 @@ class _ContactsViewState extends State<ContactsView> {
       context: context,
       builder: (context) => AlertDialog(
         title: Text('Delete Contact'),
-        content: Text('Are you sure you want to delete ${contacts[index].name}?'),
+        content: Text(
+          'Are you sure you want to delete ${contacts[index].name}?',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
@@ -152,27 +156,22 @@ class _ContactsViewState extends State<ContactsView> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Contacts'),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.add),
-            onPressed: _addContact,
-          ),
-        ],
+        actions: [IconButton(icon: Icon(Icons.add), onPressed: _addContact)],
       ),
       body: contacts.isEmpty
           ? _buildEmptyState()
           : ListView.builder(
-        itemCount: contacts.length,
-        itemBuilder: (context, index) {
-          final contact = contacts[index];
-          return ContactCard(
-            contact: contact,
-            onCall: () => _callContact(contact),
-            onEdit: () => _editContact(contact, index),
-            onDelete: () => _deleteContact(index),
-          );
-        },
-      ),
+              itemCount: contacts.length,
+              itemBuilder: (context, index) {
+                final contact = contacts[index];
+                return ContactCard(
+                  contact: contact,
+                  onCall: () => _callContact(contact),
+                  onEdit: () => _editContact(contact, index),
+                  onDelete: () => _deleteContact(index),
+                );
+              },
+            ),
     );
   }
 
@@ -181,11 +180,7 @@ class _ContactsViewState extends State<ContactsView> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            Icons.contacts,
-            size: 80,
-            color: Colors.grey[400],
-          ),
+          Icon(Icons.contacts, size: 80, color: Colors.grey[400]),
           SizedBox(height: 16),
           Text(
             'No contacts yet',
@@ -198,10 +193,7 @@ class _ContactsViewState extends State<ContactsView> {
           SizedBox(height: 8),
           Text(
             'Add your first AI contact',
-            style: TextStyle(
-              fontSize: 16,
-              color: Colors.grey[500],
-            ),
+            style: TextStyle(fontSize: 16, color: Colors.grey[500]),
           ),
           SizedBox(height: 24),
           ElevatedButton.icon(
@@ -241,10 +233,7 @@ class ContactCard extends StatelessWidget {
           backgroundColor: Colors.blue,
           child: Text(
             contact.initials,
-            style: TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-            ),
+            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
           ),
         ),
         title: Text(
@@ -330,11 +319,7 @@ class ContactDialog extends StatefulWidget {
   final Contact? contact;
   final Function(Contact) onSave;
 
-  const ContactDialog({
-    super.key,
-    this.contact,
-    required this.onSave,
-  });
+  const ContactDialog({super.key, this.contact, required this.onSave});
 
   @override
   _ContactDialogState createState() => _ContactDialogState();
@@ -367,7 +352,9 @@ class _ContactDialogState extends State<ContactDialog> {
   void _save() {
     if (_formKey.currentState!.validate()) {
       final contact = Contact(
-        id: widget.contact?.id ?? DateTime.now().millisecondsSinceEpoch.toString(),
+        id:
+            widget.contact?.id ??
+            DateTime.now().millisecondsSinceEpoch.toString(),
         name: _nameController.text.trim(),
         phoneNumber: _phoneController.text.trim(),
         character: _characterController.text.trim(),
@@ -440,10 +427,7 @@ class _ContactDialogState extends State<ContactDialog> {
           onPressed: () => Navigator.pop(context),
           child: Text('Cancel'),
         ),
-        ElevatedButton(
-          onPressed: _save,
-          child: Text('Save'),
-        ),
+        ElevatedButton(onPressed: _save, child: Text('Save')),
       ],
     );
   }

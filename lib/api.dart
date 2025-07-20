@@ -4,21 +4,21 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 Future<Map<String, dynamic>> sendChatCompletion(
-    List<Map<String, String>> conversationHistory, String character) async {
+  List<Map<String, String>> conversationHistory,
+  String character,
+) async {
   final prefs = await SharedPreferences.getInstance();
   final apiAddress = prefs.getString('openai_api_address');
 
   // Construct the full URL for the chat completions endpoint
   final url = Uri.parse('$apiAddress/v1/chat/completions');
 
-  final headers = {
-    'Content-Type': 'application/json',
-  };
+  final headers = {'Content-Type': 'application/json'};
 
   final body = jsonEncode({
     "messages": conversationHistory,
     "mode": "chat",
-    "character": character
+    "character": character,
   });
 
   final response = await http.post(url, headers: headers, body: body);

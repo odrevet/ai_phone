@@ -13,10 +13,11 @@ class PhoneView extends StatefulWidget {
   final List<Map<String, String>> conversationHistory;
   final Function addConversation;
 
-  const PhoneView(
-      {super.key,
-        required this.conversationHistory,
-        required this.addConversation});
+  const PhoneView({
+    super.key,
+    required this.conversationHistory,
+    required this.addConversation,
+  });
 
   @override
   State<PhoneView> createState() => _PhoneViewState();
@@ -29,10 +30,12 @@ class _PhoneViewState extends State<PhoneView> {
   bool _hasSpeech = false;
   bool _logEvents = false;
   bool _onDevice = false;
-  final TextEditingController _pauseForController =
-  TextEditingController(text: '3');
-  final TextEditingController _listenForController =
-  TextEditingController(text: '30');
+  final TextEditingController _pauseForController = TextEditingController(
+    text: '3',
+  );
+  final TextEditingController _listenForController = TextEditingController(
+    text: '30',
+  );
   double level = 0.0;
   double minSoundLevel = 50000;
   double maxSoundLevel = -50000;
@@ -56,7 +59,13 @@ class _PhoneViewState extends State<PhoneView> {
 
               // Debug controls section
               if (debug) ...[
-                SpeechControlWidget(_hasSpeech, speech.isListening, startListening, stopListening, cancelListening),
+                SpeechControlWidget(
+                  _hasSpeech,
+                  speech.isListening,
+                  startListening,
+                  stopListening,
+                  cancelListening,
+                ),
                 const SizedBox(height: 16),
                 SessionOptionsWidget(
                   _currentLocaleId,
@@ -102,7 +111,9 @@ class _PhoneViewState extends State<PhoneView> {
                         BoxShadow(
                           blurRadius: 20,
                           spreadRadius: level * 2,
-                          color: (speech.isListening ? Colors.green : Colors.red).withValues(alpha: 0.3),
+                          color:
+                              (speech.isListening ? Colors.green : Colors.red)
+                                  .withValues(alpha: 0.3),
                           offset: const Offset(0, 4),
                         ),
                       ],
@@ -111,7 +122,9 @@ class _PhoneViewState extends State<PhoneView> {
                       color: Colors.transparent,
                       child: InkWell(
                         borderRadius: BorderRadius.circular(80),
-                        onTap: !_hasSpeech || speech.isListening ? null : startListening,
+                        onTap: !_hasSpeech || speech.isListening
+                            ? null
+                            : startListening,
                         child: const Icon(
                           Icons.phone,
                           size: 60,
@@ -131,7 +144,9 @@ class _PhoneViewState extends State<PhoneView> {
                   decoration: BoxDecoration(
                     color: Colors.red.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: Colors.red.withValues(alpha: 0.3)),
+                    border: Border.all(
+                      color: Colors.red.withValues(alpha: 0.3),
+                    ),
                   ),
                   child: SelectableText(
                     lastError,
@@ -189,12 +204,13 @@ class _PhoneViewState extends State<PhoneView> {
     final pauseFor = int.tryParse(_pauseForController.text);
     final listenFor = int.tryParse(_listenForController.text);
     final options = SpeechListenOptions(
-        onDevice: _onDevice,
-        listenMode: ListenMode.confirmation,
-        cancelOnError: true,
-        partialResults: true,
-        autoPunctuation: true,
-        enableHapticFeedback: true);
+      onDevice: _onDevice,
+      listenMode: ListenMode.confirmation,
+      cancelOnError: true,
+      partialResults: true,
+      autoPunctuation: true,
+      enableHapticFeedback: true,
+    );
     speech.listen(
       onResult: resultListener,
       listenFor: Duration(seconds: listenFor ?? 30),
@@ -235,40 +251,57 @@ class _PhoneViewState extends State<PhoneView> {
     if (result.finalResult) {
       widget.addConversation("user", result.recognizedWords);
 
-      sendChatCompletion(widget.conversationHistory, 'assistant').then((response) {
-        String messageContent = response['choices'][0]['message']['content'];
+      sendChatCompletion(widget.conversationHistory, 'assistant')
+          .then((response) {
+            String messageContent =
+                response['choices'][0]['message']['content'];
 
-        widget.addConversation("assistant", messageContent);
+            widget.addConversation("assistant", messageContent);
 
-        setState(() {
-          lastWords += messageContent;
-        });
+            setState(() {
+              lastWords += messageContent;
+            });
 
-        // Remove <think></think> blocks with their content
-        messageContent = messageContent.replaceAll(RegExp(r'<think>.*?</think>', dotAll: true), '');
+            // Remove <think></think> blocks with their content
+            messageContent = messageContent.replaceAll(
+              RegExp(r'<think>.*?</think>', dotAll: true),
+              '',
+            );
 
-        // Remove emoticons (basic emoji characters)
-        // This regex matches most common Unicode emoji ranges
-        messageContent = messageContent.replaceAll(RegExp(r'[\u{1F600}-\u{1F64F}]|[\u{1F300}-\u{1F5FF}]|[\u{1F680}-\u{1F6FF}]|[\u{1F1E0}-\u{1F1FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]', unicode: true), '');
+            // Remove emoticons (basic emoji characters)
+            // This regex matches most common Unicode emoji ranges
+            messageContent = messageContent.replaceAll(
+              RegExp(
+                r'[\u{1F600}-\u{1F64F}]|[\u{1F300}-\u{1F5FF}]|[\u{1F680}-\u{1F6FF}]|[\u{1F1E0}-\u{1F1FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]',
+                unicode: true,
+              ),
+              '',
+            );
 
-        // Remove text-based emoticons like :), :D, :(, etc.
-        messageContent = messageContent.replaceAll(RegExp(r'[:;=]-?[)(\]\[dDoOpP\/\\|*$@]'), '');
+            // Remove text-based emoticons like :), :D, :(, etc.
+            messageContent = messageContent.replaceAll(
+              RegExp(r'[:;=]-?[)(\]\[dDoOpP\/\\|*$@]'),
+              '',
+            );
 
-        // dynamic data supposed to be Uint8List but import error
-        sendTtsGenerateRequest(messageContent).then((dynamic data) {
-          if(data != null) {
-            playAudio(data);
-          }
-        }).catchError((error) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('An error occurred: $error')),
-          );
-        });
-      }).catchError((error) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('An error occurred: $error')),
-        );
-      });
+            // dynamic data supposed to be Uint8List but import error
+            sendTtsGenerateRequest(messageContent)
+                .then((dynamic data) {
+                  if (data != null) {
+                    playAudio(data);
+                  }
+                })
+                .catchError((error) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('An error occurred: $error')),
+                  );
+                });
+          })
+          .catchError((error) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('An error occurred: $error')),
+            );
+          });
     }
   }
 
@@ -306,9 +339,7 @@ class _PhoneViewState extends State<PhoneView> {
 }
 
 class HeaderWidget extends StatelessWidget {
-  const HeaderWidget({
-    super.key,
-  });
+  const HeaderWidget({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -324,10 +355,7 @@ class HeaderWidget extends StatelessWidget {
 /// Display the current error status from the speech
 /// recognizer
 class ErrorWidget extends StatelessWidget {
-  const ErrorWidget({
-    super.key,
-    required this.lastError,
-  });
+  const ErrorWidget({super.key, required this.lastError});
 
   final String lastError;
 
@@ -340,19 +368,21 @@ class ErrorWidget extends StatelessWidget {
 /// Controls to start and stop speech recognition
 class SpeechControlWidget extends StatelessWidget {
   const SpeechControlWidget(
-      this.hasSpeech,
-      this.isListening,
-      this.startListening,
-      this.stopListening,
-      this.cancelListening,
-      //this.clearConversation,
-          {super.key});
+    this.hasSpeech,
+    this.isListening,
+    this.startListening,
+    this.stopListening,
+    this.cancelListening, {
+    //this.clearConversation,
+    super.key,
+  });
 
   final bool hasSpeech;
   final bool isListening;
   final void Function() startListening;
   final void Function() stopListening;
   final void Function() cancelListening;
+
   //final void Function() clearConversation;
 
   @override
@@ -383,15 +413,16 @@ class SpeechControlWidget extends StatelessWidget {
 
 class SessionOptionsWidget extends StatelessWidget {
   const SessionOptionsWidget(
-      this.currentLocaleId,
-      this.switchLang,
-      this.localeNames,
-      this.logEvents,
-      this.pauseForController,
-      this.listenForController,
-      this.onDevice,
-      this.switchOnDevice,
-      {super.key});
+    this.currentLocaleId,
+    this.switchLang,
+    this.localeNames,
+    this.logEvents,
+    this.pauseForController,
+    this.listenForController,
+    this.onDevice,
+    this.switchOnDevice, {
+    super.key,
+  });
 
   final String currentLocaleId;
   final void Function(String?) switchLang;
@@ -418,10 +449,10 @@ class SessionOptionsWidget extends StatelessWidget {
                 items: localeNames
                     .map(
                       (localeName) => DropdownMenuItem(
-                    value: localeName.localeId,
-                    child: Text(localeName.name),
-                  ),
-                )
+                        value: localeName.localeId,
+                        child: Text(localeName.name),
+                      ),
+                    )
                     .toList(),
               ),
             ],
@@ -430,29 +461,25 @@ class SessionOptionsWidget extends StatelessWidget {
             children: [
               const Text('pauseFor: '),
               Container(
-                  padding: const EdgeInsets.only(left: 8),
-                  width: 80,
-                  child: TextFormField(
-                    controller: pauseForController,
-                  )),
+                padding: const EdgeInsets.only(left: 8),
+                width: 80,
+                child: TextFormField(controller: pauseForController),
+              ),
               Container(
-                  padding: const EdgeInsets.only(left: 16),
-                  child: const Text('listenFor: ')),
+                padding: const EdgeInsets.only(left: 16),
+                child: const Text('listenFor: '),
+              ),
               Container(
-                  padding: const EdgeInsets.only(left: 8),
-                  width: 80,
-                  child: TextFormField(
-                    controller: listenForController,
-                  )),
+                padding: const EdgeInsets.only(left: 8),
+                width: 80,
+                child: TextFormField(controller: listenForController),
+              ),
             ],
           ),
           Row(
             children: [
               const Text('On device: '),
-              Checkbox(
-                value: onDevice,
-                onChanged: switchOnDevice,
-              ),
+              Checkbox(value: onDevice, onChanged: switchOnDevice),
             ],
           ),
         ],

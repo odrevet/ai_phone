@@ -45,32 +45,26 @@ class _SpeechSampleAppState extends State<SpeechSampleApp> {
   Widget build(BuildContext context) {
     List<Widget> widgetOptions = <Widget>[
       PhoneView(
-          conversationHistory: conversationHistory,
-          addConversation: addConversation),
+        conversationHistory: conversationHistory,
+        addConversation: addConversation,
+      ),
       SMSView(
-          conversationHistory: conversationHistory,
-          addConversation: addConversation),
+        conversationHistory: conversationHistory,
+        addConversation: addConversation,
+      ),
       ContactsView(),
       Settings(),
     ];
 
     return MaterialApp(
       home: Scaffold(
-        appBar: AppBar(
-          title: const Text('AI Phone'),
-        ),
+        appBar: AppBar(title: const Text('AI Phone')),
         body: widgetOptions[_selectedIndex],
         bottomNavigationBar: BottomNavigationBar(
           type: BottomNavigationBarType.fixed,
           items: const <BottomNavigationBarItem>[
-            BottomNavigationBarItem(
-              icon: Icon(Icons.phone),
-              label: 'Phone',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.message),
-              label: 'SMS',
-            ),
+            BottomNavigationBarItem(icon: Icon(Icons.phone), label: 'Phone'),
+            BottomNavigationBarItem(icon: Icon(Icons.message), label: 'SMS'),
             BottomNavigationBarItem(
               icon: Icon(Icons.person),
               label: 'Contacts',
