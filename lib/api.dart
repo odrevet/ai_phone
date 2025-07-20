@@ -31,7 +31,7 @@ Future<dynamic> sendTtsGenerateRequest(String messageContent) async {
   final ttsApiAddress = prefs.getString('tts_api_address');
 
   if (ttsApiAddress == null) {
-    print('Error: TTS API address not found in preferences');
+    //print('Error: TTS API address not found in preferences');
     return null;
   }
 
@@ -59,12 +59,12 @@ Future<dynamic> sendTtsGenerateRequest(String messageContent) async {
       // Convert the response body bytes to Uint8List
       return response.bodyBytes;
     } else {
-      print('Error: TTS request failed with status ${response.statusCode}');
-      print('Response body: ${response.body}');
+      //print('Error: TTS request failed with status ${response.statusCode}');
+      //print('Response body: ${response.body}');
       return null;
     }
   } catch (e) {
-    print('Error making TTS request: $e');
+    //print('Error making TTS request: $e');
     return null;
   }
 }

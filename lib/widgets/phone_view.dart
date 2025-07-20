@@ -28,7 +28,7 @@ class _PhoneViewState extends State<PhoneView> {
   final bool debug = false;
 
   bool _hasSpeech = false;
-  bool _logEvents = false;
+  final bool _logEvents = false;
   bool _onDevice = false;
   final TextEditingController _pauseForController = TextEditingController(
     text: '3',
@@ -325,9 +325,9 @@ class _PhoneViewState extends State<PhoneView> {
     });
   }
 
-  void _switchLang(selectedVal) {
+  void _switchLang(String? selectedVal) {
     setState(() {
-      _currentLocaleId = selectedVal;
+      _currentLocaleId = selectedVal!;
     });
   }
 
