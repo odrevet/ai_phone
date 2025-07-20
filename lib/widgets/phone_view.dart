@@ -24,13 +24,16 @@ class PhoneView extends StatefulWidget {
 }
 
 class _PhoneViewState extends State<PhoneView> {
+  // Debug variable - set to true to show debug controls
+  final bool debug = true;
+
   bool _hasSpeech = false;
   bool _logEvents = false;
   bool _onDevice = false;
   final TextEditingController _pauseForController =
-      TextEditingController(text: '3');
+  TextEditingController(text: '3');
   final TextEditingController _listenForController =
-      TextEditingController(text: '30');
+  TextEditingController(text: '30');
   double level = 0.0;
   double minSoundLevel = 50000;
   double maxSoundLevel = -50000;
@@ -49,29 +52,33 @@ class _PhoneViewState extends State<PhoneView> {
         Column(
           children: <Widget>[
             InitSpeechWidget(_hasSpeech, initSpeechState),
-            //SpeechControlWidget(_hasSpeech, speech.isListening, startListening, stopListening, cancelListening),
-            /*SessionOptionsWidget(
-              _currentLocaleId,
-              _switchLang,
-              _localeNames,
-              _logEvents,
-              _pauseForController,
-              _listenForController,
-              _onDevice,
-              _switchOnDevice,
-            ),*/
+            // Show speech controller only when debug is true
+            if (debug)
+              SpeechControlWidget(_hasSpeech, speech.isListening, startListening, stopListening, cancelListening),
+            if (debug)
+              SessionOptionsWidget(
+                _currentLocaleId,
+                _switchLang,
+                _localeNames,
+                _logEvents,
+                _pauseForController,
+                _listenForController,
+                _onDevice,
+                _switchOnDevice,
+              ),
           ],
         ),
-        // WIP debug
-        /*Container(
-          color: Theme.of(context).secondaryHeaderColor,
-          child: Center(
-            child: Text(
-              lastWords,
-              textAlign: TextAlign.center,
+        // Debug container - show only when debug is true
+        if (debug)
+          Container(
+            color: Theme.of(context).secondaryHeaderColor,
+            child: Center(
+              child: Text(
+                lastWords,
+                textAlign: TextAlign.center,
+              ),
             ),
           ),
-        ),*/
         Container(
           width: 140, height: 140,
           alignment: Alignment.center,
@@ -296,7 +303,7 @@ class SpeechControlWidget extends StatelessWidget {
       this.stopListening,
       this.cancelListening,
       //this.clearConversation,
-      {Key? key})
+          {Key? key})
       : super(key: key);
 
   final bool hasSpeech;
@@ -370,10 +377,10 @@ class SessionOptionsWidget extends StatelessWidget {
                 items: localeNames
                     .map(
                       (localeName) => DropdownMenuItem(
-                        value: localeName.localeId,
-                        child: Text(localeName.name),
-                      ),
-                    )
+                    value: localeName.localeId,
+                    child: Text(localeName.name),
+                  ),
+                )
                     .toList(),
               ),
             ],
@@ -433,4 +440,3 @@ class InitSpeechWidget extends StatelessWidget {
     );
   }
 }
-
