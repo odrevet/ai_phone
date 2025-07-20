@@ -17,7 +17,7 @@ class _SettingsState extends State<Settings> {
     _loadSettings();
   }
 
-  _loadSettings() async {
+  Future<void> _loadSettings() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
       _openAIController.text = prefs.getString('openai_api_address') ?? '';
@@ -26,7 +26,7 @@ class _SettingsState extends State<Settings> {
     });
   }
 
-  _saveSettings() async {
+  Future<void> _saveSettings() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('openai_api_address', _openAIController.text);
     await prefs.setString('tts_api_address', _ttsController.text);

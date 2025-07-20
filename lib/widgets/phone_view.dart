@@ -14,10 +14,9 @@ class PhoneView extends StatefulWidget {
   final Function addConversation;
 
   const PhoneView(
-      {Key? key,
+      {super.key,
         required this.conversationHistory,
-        required this.addConversation})
-      : super(key: key);
+        required this.addConversation});
 
   @override
   State<PhoneView> createState() => _PhoneViewState();
@@ -103,7 +102,7 @@ class _PhoneViewState extends State<PhoneView> {
                         BoxShadow(
                           blurRadius: 20,
                           spreadRadius: level * 2,
-                          color: (speech.isListening ? Colors.green : Colors.red).withOpacity(0.3),
+                          color: (speech.isListening ? Colors.green : Colors.red).withValues(alpha: 0.3),
                           offset: const Offset(0, 4),
                         ),
                       ],
@@ -130,9 +129,9 @@ class _PhoneViewState extends State<PhoneView> {
                   padding: const EdgeInsets.all(12),
                   margin: const EdgeInsets.only(top: 16),
                   decoration: BoxDecoration(
-                    color: Colors.red.withOpacity(0.1),
+                    color: Colors.red.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: Colors.red.withOpacity(0.3)),
+                    border: Border.all(color: Colors.red.withValues(alpha: 0.3)),
                   ),
                   child: SelectableText(
                     lastError,
@@ -308,8 +307,8 @@ class _PhoneViewState extends State<PhoneView> {
 
 class HeaderWidget extends StatelessWidget {
   const HeaderWidget({
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -326,9 +325,9 @@ class HeaderWidget extends StatelessWidget {
 /// recognizer
 class ErrorWidget extends StatelessWidget {
   const ErrorWidget({
-    Key? key,
+    super.key,
     required this.lastError,
-  }) : super(key: key);
+  });
 
   final String lastError;
 
@@ -347,8 +346,7 @@ class SpeechControlWidget extends StatelessWidget {
       this.stopListening,
       this.cancelListening,
       //this.clearConversation,
-          {Key? key})
-      : super(key: key);
+          {super.key});
 
   final bool hasSpeech;
   final bool isListening;
@@ -393,8 +391,7 @@ class SessionOptionsWidget extends StatelessWidget {
       this.listenForController,
       this.onDevice,
       this.switchOnDevice,
-      {Key? key})
-      : super(key: key);
+      {super.key});
 
   final String currentLocaleId;
   final void Function(String?) switchLang;
@@ -465,8 +462,7 @@ class SessionOptionsWidget extends StatelessWidget {
 }
 
 class InitSpeechWidget extends StatelessWidget {
-  const InitSpeechWidget(this.hasSpeech, this.initSpeechState, {Key? key})
-      : super(key: key);
+  const InitSpeechWidget(this.hasSpeech, this.initSpeechState, {super.key});
 
   final bool hasSpeech;
   final Future<void> Function() initSpeechState;

@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 void main() => runApp(const SpeechSampleApp());
 
 class SpeechSampleApp extends StatefulWidget {
-  const SpeechSampleApp({Key? key}) : super(key: key);
+  const SpeechSampleApp({super.key});
 
   @override
   State<SpeechSampleApp> createState() => _SpeechSampleAppState();
@@ -43,7 +43,7 @@ class _SpeechSampleAppState extends State<SpeechSampleApp> {
 
   @override
   Widget build(BuildContext context) {
-    List<Widget> _widgetOptions = <Widget>[
+    List<Widget> widgetOptions = <Widget>[
       PhoneView(
           conversationHistory: conversationHistory,
           addConversation: addConversation),
@@ -59,7 +59,7 @@ class _SpeechSampleAppState extends State<SpeechSampleApp> {
         appBar: AppBar(
           title: const Text('AI Phone'),
         ),
-        body: _widgetOptions[_selectedIndex],
+        body: widgetOptions[_selectedIndex],
         bottomNavigationBar: BottomNavigationBar(
           type: BottomNavigationBarType.fixed,
           items: const <BottomNavigationBarItem>[
