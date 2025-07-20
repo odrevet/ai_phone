@@ -25,7 +25,7 @@ class PhoneView extends StatefulWidget {
 
 class _PhoneViewState extends State<PhoneView> {
   // Debug variable - set to true to show debug controls
-  final bool debug = true;
+  final bool debug = false;
 
   bool _hasSpeech = false;
   bool _logEvents = false;
@@ -46,62 +46,105 @@ class _PhoneViewState extends State<PhoneView> {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Column(children: [
-        const HeaderWidget(),
-        Column(
-          children: <Widget>[
-            InitSpeechWidget(_hasSpeech, initSpeechState),
-            // Show speech controller only when debug is true
-            if (debug)
-              SpeechControlWidget(_hasSpeech, speech.isListening, startListening, stopListening, cancelListening),
-            if (debug)
-              SessionOptionsWidget(
-                _currentLocaleId,
-                _switchLang,
-                _localeNames,
-                _logEvents,
-                _pauseForController,
-                _listenForController,
-                _onDevice,
-                _switchOnDevice,
+    return Scaffold(
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            children: [
+              //const HeaderWidget(),
+              const SizedBox(height: 20),
+
+              // Debug controls section
+              if (debug) ...[
+                SpeechControlWidget(_hasSpeech, speech.isListening, startListening, stopListening, cancelListening),
+                const SizedBox(height: 16),
+                SessionOptionsWidget(
+                  _currentLocaleId,
+                  _switchLang,
+                  _localeNames,
+                  _logEvents,
+                  _pauseForController,
+                  _listenForController,
+                  _onDevice,
+                  _switchOnDevice,
+                ),
+                const SizedBox(height: 16),
+              ],
+
+              // Debug container - show only when debug is true
+              if (debug) ...[
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  margin: const EdgeInsets.symmetric(vertical: 8),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).secondaryHeaderColor,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(
+                    lastWords.isEmpty ? 'No speech detected yet...' : lastWords,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(fontSize: 14),
+                  ),
+                ),
+                const SizedBox(height: 20),
+              ],
+
+              // Main phone button - centered and expandable
+              Expanded(
+                child: Center(
+                  child: Container(
+                    width: 160,
+                    height: 160,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: speech.isListening ? Colors.green : Colors.red,
+                      boxShadow: [
+                        BoxShadow(
+                          blurRadius: 20,
+                          spreadRadius: level * 2,
+                          color: (speech.isListening ? Colors.green : Colors.red).withOpacity(0.3),
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(80),
+                        onTap: !_hasSpeech || speech.isListening ? null : startListening,
+                        child: const Icon(
+                          Icons.phone,
+                          size: 60,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
               ),
-          ],
-        ),
-        // Debug container - show only when debug is true
-        if (debug)
-          Container(
-            color: Theme.of(context).secondaryHeaderColor,
-            child: Center(
-              child: Text(
-                lastWords,
-                textAlign: TextAlign.center,
-              ),
-            ),
-          ),
-        Container(
-          width: 140, height: 140,
-          alignment: Alignment.center,
-          decoration: BoxDecoration(
-            boxShadow: [
-              BoxShadow(
-                  blurRadius: .26,
-                  spreadRadius: level * 1.5,
-                  color: Colors.black.withOpacity(.05))
+
+              // Error display at bottom
+              if (lastError.isNotEmpty) ...[
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  margin: const EdgeInsets.only(top: 16),
+                  decoration: BoxDecoration(
+                    color: Colors.red.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: Colors.red.withOpacity(0.3)),
+                  ),
+                  child: SelectableText(
+                    lastError,
+                    style: const TextStyle(color: Colors.red),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              ],
             ],
-            color: speech.isListening ? Colors.green : Colors.white,
-            borderRadius: const BorderRadius.all(Radius.circular(10)),
-          ),
-          child: IconButton(
-            icon: const Icon(Icons.phone),
-            onPressed: !_hasSpeech || speech.isListening ? null : startListening,
           ),
         ),
-        Expanded(
-          flex: 1,
-          child: ErrorWidget(lastError: lastError),
-        ),
-      ]),
+      ),
     );
   }
 
@@ -131,6 +174,13 @@ class _PhoneViewState extends State<PhoneView> {
         _hasSpeech = false;
       });
     }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    // Automatically initialize speech at startup
+    initSpeechState();
   }
 
   // This is called each time the users wants to start a new speech
@@ -284,13 +334,7 @@ class ErrorWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: <Widget>[
-        Center(
-          child: SelectableText(lastError),
-        ),
-      ],
-    );
+    return const SizedBox.shrink(); // Empty widget since errors are now handled in main build
   }
 }
 
