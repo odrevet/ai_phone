@@ -52,7 +52,7 @@ class _SpeechSampleAppState extends State<SpeechSampleApp> {
         conversationHistory: conversationHistory,
         addConversation: addConversation,
       ),
-      ContactsView(),
+      //ContactsView(),
       Settings(),
     ];
 
