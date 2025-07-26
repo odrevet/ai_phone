@@ -5,7 +5,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 Future<Map<String, dynamic>> sendChatCompletion(
   List<Map<String, String>> conversationHistory,
-  String character,
 ) async {
   final prefs = await SharedPreferences.getInstance();
   final apiAddress = prefs.getString('openai_api_address');
@@ -15,11 +14,7 @@ Future<Map<String, dynamic>> sendChatCompletion(
 
   final headers = {'Content-Type': 'application/json'};
 
-  final body = jsonEncode({
-    "messages": conversationHistory,
-    "mode": "chat",
-    "character": character,
-  });
+  final body = jsonEncode({"messages": conversationHistory, "mode": "chat"});
 
   final response = await http.post(url, headers: headers, body: body);
 

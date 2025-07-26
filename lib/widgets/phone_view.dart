@@ -259,7 +259,7 @@ class _PhoneViewState extends State<PhoneView> {
     if (result.finalResult) {
       await widget.addConversation("user", result.recognizedWords);
 
-      sendChatCompletion(widget.conversationHistory, 'assistant')
+      sendChatCompletion(widget.conversationHistory)
           .then((response) async {
             String messageContent =
                 response['choices'][0]['message']['content'];

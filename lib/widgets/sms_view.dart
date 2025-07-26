@@ -298,7 +298,7 @@ class SMSViewState extends State<SMSView> with TickerProviderStateMixin {
       _scrollToBottom();
 
       try {
-        final response = await sendChatCompletion(widget.conversationHistory, "assistant");
+        final response = await sendChatCompletion(widget.conversationHistory);
 
         _animationController.stop();
         setState(() {
