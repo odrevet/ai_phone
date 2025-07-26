@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Settings extends StatefulWidget {
+  const Settings({super.key});
+
   @override
-  _SettingsState createState() => _SettingsState();
+  SettingsState createState() => SettingsState();
 }
 
-class _SettingsState extends State<Settings> {
+class SettingsState extends State<Settings> {
   final TextEditingController _openAIController = TextEditingController();
   final TextEditingController _ttsController = TextEditingController();
   final TextEditingController _generationModelController = TextEditingController();
@@ -14,6 +16,7 @@ class _SettingsState extends State<Settings> {
   final TextEditingController _apiKeyGenerationController = TextEditingController();
   final TextEditingController _apiKeyTtsController = TextEditingController();
   bool _debugMode = false;
+  bool _disableThinking = true; // Default to true (disabled)
 
   @override
   void initState() {
@@ -31,6 +34,7 @@ class _SettingsState extends State<Settings> {
       _apiKeyGenerationController.text = prefs.getString('api_key_generation') ?? '';
       _apiKeyTtsController.text = prefs.getString('api_key_tts') ?? '';
       _debugMode = prefs.getBool('debug_mode') ?? false;
+      _disableThinking = prefs.getBool('disable_thinking') ?? true;
     });
   }
 
@@ -43,6 +47,7 @@ class _SettingsState extends State<Settings> {
     await prefs.setString('api_key_generation', _apiKeyGenerationController.text);
     await prefs.setString('api_key_tts', _apiKeyTtsController.text);
     await prefs.setBool('debug_mode', _debugMode);
+    await prefs.setBool('disable_thinking', _disableThinking);
     ScaffoldMessenger.of(
       context,
     ).showSnackBar(SnackBar(content: Text('Settings saved')));
@@ -151,6 +156,17 @@ class _SettingsState extends State<Settings> {
                 onChanged: (bool? value) {
                   setState(() {
                     _debugMode = value ?? false;
+                  });
+                },
+                contentPadding: EdgeInsets.zero,
+              ),
+              CheckboxListTile(
+                title: Text('Disable Thinking'),
+                subtitle: Text('Hide thinking process in AI responses'),
+                value: _disableThinking,
+                onChanged: (bool? value) {
+                  setState(() {
+                    _disableThinking = value ?? true;
                   });
                 },
                 contentPadding: EdgeInsets.zero,

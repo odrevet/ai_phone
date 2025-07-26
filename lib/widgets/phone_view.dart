@@ -251,20 +251,20 @@ class _PhoneViewState extends State<PhoneView> {
 
   /// This callback is invoked each time new recognition results are
   /// available after `listen` is called.
-  void resultListener(SpeechRecognitionResult result) {
+  Future<void> resultListener(SpeechRecognitionResult result) async {
     setState(() {
       lastWords = result.recognizedWords;
     });
 
     if (result.finalResult) {
-      widget.addConversation("user", result.recognizedWords);
+      await widget.addConversation("user", result.recognizedWords);
 
       sendChatCompletion(widget.conversationHistory, 'assistant')
-          .then((response) {
+          .then((response) async {
             String messageContent =
                 response['choices'][0]['message']['content'];
 
-            widget.addConversation("assistant", messageContent);
+            await widget.addConversation("assistant", messageContent);
 
             setState(() {
               lastWords += messageContent;

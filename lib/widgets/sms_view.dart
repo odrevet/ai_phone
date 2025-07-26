@@ -14,10 +14,10 @@ class SMSView extends StatefulWidget {
   });
 
   @override
-  _SMSViewState createState() => _SMSViewState();
+  SMSViewState createState() => SMSViewState();
 }
 
-class _SMSViewState extends State<SMSView> {
+class SMSViewState extends State<SMSView> {
   final TextEditingController _messageController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
 
@@ -102,9 +102,11 @@ class _SMSViewState extends State<SMSView> {
                 ),
                 const SizedBox(width: 8),
                 ElevatedButton(
-                  onPressed: _sendMessage,
+                  onPressed: () async {
+                    await _sendMessage();
+                  },
                   child: const Text('Send'),
-                ),
+                )
               ],
             ),
           ),
@@ -113,19 +115,19 @@ class _SMSViewState extends State<SMSView> {
     );
   }
 
-  void _sendMessage() {
+  Future<void> _sendMessage() async {
     final message = _messageController.text.trim();
     if (message.isNotEmpty) {
-      widget.addConversation("user", message);
+      await widget.addConversation("user", message);
       _scrollToBottom();
 
       _messageController.clear();
 
       sendChatCompletion(widget.conversationHistory, "assistant").then((
         response,
-      ) {
+      ) async {
         String messageContent = response['choices'][0]['message']['content'];
-        widget.addConversation("assistant", messageContent);
+        await widget.addConversation("assistant", messageContent);
         _scrollToBottom();
       });
     }

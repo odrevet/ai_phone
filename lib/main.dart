@@ -1,8 +1,9 @@
-import 'package:ai_phone/widgets/contacts_view.dart';
+//import 'package:ai_phone/widgets/contacts_view.dart';
 import 'package:ai_phone/widgets/phone_view.dart';
 import 'package:ai_phone/widgets/settings.dart';
 import 'package:ai_phone/widgets/sms_view.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() => runApp(const SpeechSampleApp());
 
@@ -22,9 +23,14 @@ class _SpeechSampleAppState extends State<SpeechSampleApp> {
     super.initState();
   }
 
-  void addConversation(String role, String content) {
+  void addConversation(String role, String content) async {
+    final prefs = await SharedPreferences.getInstance();
+    final disableThinking = prefs.getBool('disable_thinking') ?? true;
+
     setState(() {
-      content += ' /no_think'; // wip option
+      if (!disableThinking) {
+        content += ' /no_think';
+      }
       conversationHistory.add({"role": role, "content": content});
     });
   }
