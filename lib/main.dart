@@ -28,7 +28,7 @@ class _SpeechSampleAppState extends State<SpeechSampleApp> {
     final disableThinking = prefs.getBool('disable_thinking') ?? true;
 
     setState(() {
-      if (!disableThinking) {
+      if (disableThinking) {
         content += ' /no_think';
       }
       conversationHistory.add({"role": role, "content": content});
