@@ -64,7 +64,6 @@ class _SpeechSampleAppState extends State<SpeechSampleApp> {
 
     return MaterialApp(
       home: Scaffold(
-        appBar: AppBar(title: const Text('AI Phone')),
         body: widgetOptions[_selectedIndex],
         bottomNavigationBar: BottomNavigationBar(
           type: BottomNavigationBarType.fixed,
