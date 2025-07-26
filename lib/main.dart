@@ -65,10 +65,10 @@ class _SpeechSampleAppState extends State<SpeechSampleApp> {
           items: const <BottomNavigationBarItem>[
             BottomNavigationBarItem(icon: Icon(Icons.phone), label: 'Phone'),
             BottomNavigationBarItem(icon: Icon(Icons.message), label: 'SMS'),
-            BottomNavigationBarItem(
+            /*BottomNavigationBarItem(
               icon: Icon(Icons.person),
               label: 'Contacts',
-            ),
+            ),*/
             BottomNavigationBarItem(
               icon: Icon(Icons.settings),
               label: 'settings',
