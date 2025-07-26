@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_chat_bubble/chat_bubble.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../api.dart';
 
@@ -63,7 +65,7 @@ class SMSViewState extends State<SMSView> with TickerProviderStateMixin {
               borderRadius: BorderRadius.circular(20),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.05),
+                  color: Colors.black.withOpacity(0.05),
                   blurRadius: 4,
                   offset: const Offset(0, 2),
                 ),
@@ -94,9 +96,7 @@ class SMSViewState extends State<SMSView> with TickerProviderStateMixin {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
       child: Row(
-        mainAxisAlignment: isUser
-            ? MainAxisAlignment.start
-            : MainAxisAlignment.end,
+        mainAxisAlignment: isUser ? MainAxisAlignment.start : MainAxisAlignment.end,
         children: [
           if (!isUser) const Spacer(flex: 1),
           Flexible(
@@ -119,7 +119,9 @@ class SMSViewState extends State<SMSView> with TickerProviderStateMixin {
               child: Text(
                 message['content'] ?? '',
                 style: TextStyle(
-                  color: isUser ? Colors.black87 : Colors.white,
+                  color: isUser
+                      ? Colors.black87
+                      : Colors.white,
                   fontSize: 16,
                   height: 1.4,
                 ),
@@ -154,7 +156,10 @@ class SMSViewState extends State<SMSView> with TickerProviderStateMixin {
           const SizedBox(height: 8),
           Text(
             'Start a conversation below',
-            style: TextStyle(fontSize: 14, color: Colors.grey.shade500),
+            style: TextStyle(
+              fontSize: 14,
+              color: Colors.grey.shade500,
+            ),
           ),
         ],
       ),
@@ -165,7 +170,12 @@ class SMSViewState extends State<SMSView> with TickerProviderStateMixin {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
-        border: Border(top: BorderSide(color: Colors.grey.shade200, width: 1)),
+        border: Border(
+          top: BorderSide(
+            color: Colors.grey.shade200,
+            width: 1,
+          ),
+        ),
       ),
       child: SafeArea(
         child: Padding(
@@ -178,7 +188,10 @@ class SMSViewState extends State<SMSView> with TickerProviderStateMixin {
                   decoration: BoxDecoration(
                     color: Colors.grey.shade50,
                     borderRadius: BorderRadius.circular(24),
-                    border: Border.all(color: Colors.grey.shade300, width: 1),
+                    border: Border.all(
+                      color: Colors.grey.shade300,
+                      width: 1,
+                    ),
                   ),
                   child: TextField(
                     controller: _messageController,
@@ -206,11 +219,9 @@ class SMSViewState extends State<SMSView> with TickerProviderStateMixin {
                   borderRadius: BorderRadius.circular(24),
                 ),
                 child: IconButton(
-                  onPressed: _isTyping
-                      ? null
-                      : () async {
-                          await _sendMessage();
-                        },
+                  onPressed: _isTyping ? null : () async {
+                    await _sendMessage();
+                  },
                   icon: Icon(
                     Icons.send,
                     color: _isTyping ? Colors.grey.shade500 : Colors.white,
@@ -244,7 +255,10 @@ class SMSViewState extends State<SMSView> with TickerProviderStateMixin {
         elevation: 0,
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(1),
-          child: Container(height: 1, color: Colors.grey.shade200),
+          child: Container(
+            height: 1,
+            color: Colors.grey.shade200,
+          ),
         ),
       ),
       body: Column(
@@ -253,20 +267,18 @@ class SMSViewState extends State<SMSView> with TickerProviderStateMixin {
             child: widget.conversationHistory.isEmpty && !_isTyping
                 ? _buildEmptyState()
                 : ListView.builder(
-                    controller: _scrollController,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    itemCount:
-                        widget.conversationHistory.length + (_isTyping ? 1 : 0),
-                    itemBuilder: (context, index) {
-                      if (_isTyping &&
-                          index == widget.conversationHistory.length) {
-                        return _buildTypingIndicator();
-                      }
+              controller: _scrollController,
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              itemCount: widget.conversationHistory.length + (_isTyping ? 1 : 0),
+              itemBuilder: (context, index) {
+                if (_isTyping && index == widget.conversationHistory.length) {
+                  return _buildTypingIndicator();
+                }
 
-                      final message = widget.conversationHistory[index];
-                      return _buildMessageBubble(message);
-                    },
-                  ),
+                final message = widget.conversationHistory[index];
+                return _buildMessageBubble(message);
+              },
+            ),
           ),
           _buildInputArea(),
         ],
@@ -286,25 +298,33 @@ class SMSViewState extends State<SMSView> with TickerProviderStateMixin {
       _animationController.repeat();
       _scrollToBottom();
 
-      sendChatCompletion(widget.conversationHistory, "assistant")
-          .then((response) async {
-            _animationController.stop();
-            setState(() {
-              _isTyping = false;
-            });
+      try {
+        final response = await sendChatCompletion(widget.conversationHistory, "assistant");
 
-            String messageContent =
-                response['choices'][0]['message']['content'];
-            await widget.addConversation("assistant", messageContent);
-            _scrollToBottom();
-          })
-          .catchError((error) {
-            _animationController.stop();
-            setState(() {
-              _isTyping = false;
-            });
-            print('Error sending message: $error');
-          });
+        _animationController.stop();
+        setState(() {
+          _isTyping = false;
+        });
+
+        String messageContent = response['choices'][0]['message']['content'];
+        final prefs = await SharedPreferences.getInstance();
+        bool? debug_mode = prefs.getBool('debug_mode');
+        if (!debug_mode!) {
+          messageContent = messageContent.replaceAll(
+            RegExp(r'<think>.*?</think>', dotAll: true),
+            '',
+          );
+        }
+        messageContent = messageContent.replaceAll('/no_think', '');
+        messageContent = messageContent.trim();
+        await widget.addConversation("assistant", messageContent);
+        _scrollToBottom();
+      } catch (error) {
+        _animationController.stop();
+        setState(() {
+          _isTyping = false;
+        });
+        print('Error sending message: $error');
+      }
     }
-  }
-}
+  }}
