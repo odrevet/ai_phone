@@ -15,7 +15,10 @@ class SpeechSampleApp extends StatefulWidget {
 }
 
 class _SpeechSampleAppState extends State<SpeechSampleApp> {
-  List<Map<String, String>> conversationHistory = [];
+  //List<Map<String, String>> conversationHistory = [];
+  final List<Map<String, String>> conversationHistory = [
+    {"role": "system", "content": "give short answers"},
+  ];
   int _selectedIndex = 0;
 
   @override

@@ -1,5 +1,8 @@
+import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import '../api.dart';
 
 class Settings extends StatefulWidget {
   const Settings({super.key});
@@ -51,6 +54,11 @@ class SettingsState extends State<Settings> {
     ScaffoldMessenger.of(
       context,
     ).showSnackBar(SnackBar(content: Text('Settings saved')));
+  }
+
+  void playAudio(dynamic data) async {
+    final player = AudioPlayer();
+    await player.play(BytesSource(data));
   }
 
   @override
@@ -107,6 +115,20 @@ class SettingsState extends State<Settings> {
               Text(
                 'Text-to-Speech (TTS)',
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              SizedBox(height: 12),
+              ElevatedButton.icon(
+                onPressed: () async {
+                  sendTtsGenerateRequest("This is a test !")
+                      .then((dynamic data) {
+                    if (data != null) {
+                      playAudio(data);
+                    }
+                  });
+
+                },
+                icon: Icon(Icons.volume_up),
+                label: Text('Test TTS'),
               ),
               SizedBox(height: 12),
               Text(

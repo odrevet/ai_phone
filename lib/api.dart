@@ -38,17 +38,18 @@ Future<dynamic> sendTtsGenerateRequest(String messageContent) async {
   final body = {
     'model': 'tts-1',
     'input': messageContent,
-    'voice': voice,
     'response_format': 'mp3',
+    if (voice.trim().isNotEmpty) 'voice': voice,
+  };
+  final headers = {
+    'Authorization': 'Bearer ${ttsApiKey?.trim().isNotEmpty == true ? ttsApiKey : 'your_api_key_here'}',
+    'Content-Type': 'application/json',
   };
 
   try {
     final response = await http.post(
       url,
-      headers: {
-        'Authorization': 'Bearer ${ttsApiKey ?? 'your_api_key_here'}',
-        'Content-Type': 'application/json',
-      },
+      headers: headers,
       body: jsonEncode(body),
     );
 
@@ -56,8 +57,12 @@ Future<dynamic> sendTtsGenerateRequest(String messageContent) async {
       // Convert the response body bytes to Uint8List
       return response.bodyBytes;
     } else {
-      //print('Error: TTS request failed with status ${response.statusCode}');
-      //print('Response body: ${response.body}');
+      print('Error: TTS request failed with status ${response.statusCode}');
+      print('Response body: ${response.body}');
+
+      print("request was ${body}");
+      print("header was ${headers}");
+
       return null;
     }
   } catch (e) {
