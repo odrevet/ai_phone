@@ -1,8 +1,5 @@
-import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
-import '../api.dart';
 
 class Settings extends StatefulWidget {
   const Settings({super.key});
@@ -20,6 +17,7 @@ class SettingsState extends State<Settings> {
   final TextEditingController _apiKeyTtsController = TextEditingController();
   bool _debugMode = false;
   bool _disableThinking = true; // Default to true (disabled)
+  bool _automaticListen = true; // Default to true (enabled)
 
   @override
   void initState() {
@@ -38,6 +36,7 @@ class SettingsState extends State<Settings> {
       _apiKeyTtsController.text = prefs.getString('api_key_tts') ?? '';
       _debugMode = prefs.getBool('debug_mode') ?? false;
       _disableThinking = prefs.getBool('disable_thinking') ?? true;
+      _automaticListen = prefs.getBool('automatic_listen') ?? true;
     });
   }
 
@@ -51,14 +50,10 @@ class SettingsState extends State<Settings> {
     await prefs.setString('api_key_tts', _apiKeyTtsController.text);
     await prefs.setBool('debug_mode', _debugMode);
     await prefs.setBool('disable_thinking', _disableThinking);
+    await prefs.setBool('automatic_listen', _automaticListen);
     ScaffoldMessenger.of(
       context,
     ).showSnackBar(SnackBar(content: Text('Settings saved')));
-  }
-
-  void playAudio(dynamic data) async {
-    final player = AudioPlayer();
-    await player.play(BytesSource(data));
   }
 
   @override
@@ -117,20 +112,6 @@ class SettingsState extends State<Settings> {
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
               SizedBox(height: 12),
-              ElevatedButton.icon(
-                onPressed: () async {
-                  sendTtsGenerateRequest("This is a test !")
-                      .then((dynamic data) {
-                    if (data != null) {
-                      playAudio(data);
-                    }
-                  });
-
-                },
-                icon: Icon(Icons.volume_up),
-                label: Text('Test TTS'),
-              ),
-              SizedBox(height: 12),
               Text(
                 'API Address',
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
@@ -160,8 +141,20 @@ class SettingsState extends State<Settings> {
               TextField(
                 controller: _voiceController,
                 decoration: InputDecoration(
-                  hintText: 'Enter voice (e.g., alloy)',
+                  hintText: 'Enter speech model (e.g., whisper-1, speech-to-text-v1)',
                 ),
+              ),
+              SizedBox(height: 16),
+              CheckboxListTile(
+                title: Text('Automatic Listen'),
+                subtitle: Text('Automatically start listening after TTS playback ends'),
+                value: _automaticListen,
+                onChanged: (bool? value) {
+                  setState(() {
+                    _automaticListen = value ?? true;
+                  });
+                },
+                contentPadding: EdgeInsets.zero,
               ),
               SizedBox(height: 30),
 

@@ -259,57 +259,102 @@ class _PhoneViewState extends State<PhoneView> {
     if (result.finalResult) {
       await widget.addConversation("user", result.recognizedWords);
 
-      sendChatCompletion(widget.conversationHistory)
-          .then((response) async {
-            String messageContent =
-                response['choices'][0]['message']['content'];
+      try {
+        final response = await sendChatCompletion(widget.conversationHistory);
+        String messageContent = response['choices'][0]['message']['content'];
 
-            await widget.addConversation("assistant", messageContent);
+        // Check debug mode for think tag removal
+        if (!debug) {
+          messageContent = messageContent.replaceAll(
+            RegExp(r'<think>.*?</think>', dotAll: true),
+            '',
+          );
+        }
 
-            setState(() {
-              lastWords += messageContent;
-            });
+        // Remove /no_think string
+        messageContent = messageContent.replaceAll('/no_think', '');
+        messageContent = messageContent.trim();
 
-            // Remove <think></think> blocks with their content
-            messageContent = messageContent.replaceAll(
-              RegExp(r'<think>.*?</think>', dotAll: true),
-              '',
-            );
+        await widget.addConversation("assistant", messageContent);
 
-            // Remove emoticons (basic emoji characters)
-            // This regex matches most common Unicode emoji ranges
-            messageContent = messageContent.replaceAll(
-              RegExp(
-                r'[\u{1F600}-\u{1F64F}]|[\u{1F300}-\u{1F5FF}]|[\u{1F680}-\u{1F6FF}]|[\u{1F1E0}-\u{1F1FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]',
-                unicode: true,
-              ),
-              '',
-            );
+        setState(() {
+          lastWords += messageContent;
+        });
 
-            // Remove text-based emoticons like :), :D, :(, etc.
-            messageContent = messageContent.replaceAll(
-              RegExp(r'[:;=]-?[)(\]\[dDoOpP\/\\|*$@]'),
-              '',
-            );
+        // Remove emoticons (basic emoji characters)
+        // This regex matches most common Unicode emoji ranges
+        messageContent = messageContent.replaceAll(
+          RegExp(
+            r'[\u{1F600}-\u{1F64F}]|[\u{1F300}-\u{1F5FF}]|[\u{1F680}-\u{1F6FF}]|[\u{1F1E0}-\u{1F1FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]',
+            unicode: true,
+          ),
+          '',
+        );
 
-            // dynamic data supposed to be Uint8List but import error
-            sendTtsGenerateRequest(messageContent)
-                .then((dynamic data) {
-                  if (data != null) {
-                    playAudio(data);
-                  }
-                })
-                .catchError((error) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('An error occurred: $error')),
-                  );
-                });
-          })
-          .catchError((error) {
+        // Remove text-based emoticons like :), :D, :(, etc.
+        messageContent = messageContent.replaceAll(
+          RegExp(r'[:;=]-?[)(\]\[dDoOpP\/\\|*$@]'),
+          '',
+        );
+
+        // Check automatic listen setting
+        final prefs = await SharedPreferences.getInstance();
+        final automaticListen = prefs.getBool('automatic_listen') ?? true;
+
+        try {
+          final data = await sendTtsGenerateRequest(messageContent);
+          if (data != null) {
+            final player = AudioPlayer();
+            await player.play(BytesSource(data));
+
+            // Wait for audio to complete, then start listening again if enabled
+            print("----------------");
+            print(automaticListen);
+            if (automaticListen) {
+              print("YES");
+              player.onPlayerComplete.listen((_) {
+                if (mounted && _hasSpeech) {
+                  // Small delay to ensure smooth transition
+                  Future.delayed(const Duration(milliseconds: 500), () {
+                    if (mounted && !speech.isListening) {
+                      startListening();
+                    }
+                  });
+                }
+              });
+            }
+          } else {
+            // If no audio data, start listening immediately if enabled
+            if (automaticListen && mounted && _hasSpeech && !speech.isListening) {
+              Future.delayed(const Duration(milliseconds: 500), () {
+                if (mounted && !speech.isListening) {
+                  startListening();
+                }
+              });
+            }
+          }
+        } catch (error) {
+          if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('An error occurred: $error')),
+              SnackBar(content: Text('TTS error: $error')),
             );
-          });
+            // Start listening even if TTS fails, but only if enabled
+            if (automaticListen && _hasSpeech && !speech.isListening) {
+              Future.delayed(const Duration(milliseconds: 500), () {
+                if (mounted && !speech.isListening) {
+                  startListening();
+                }
+              });
+            }
+          }
+        }
+      } catch (error) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Chat completion error: $error')),
+          );
+        }
+      }
     }
   }
 
