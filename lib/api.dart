@@ -29,6 +29,8 @@ Future<Map<String, dynamic>> sendChatCompletion(
 Future<dynamic> sendTtsGenerateRequest(String messageContent) async {
   final prefs = await SharedPreferences.getInstance();
   final ttsApiAddress = prefs.getString('tts_api_address');
+  final speechModel = prefs.getString('speech_model') ?? 'alloy';
+  final ttsApiKey = prefs.getString('api_key_tts');
 
   if (ttsApiAddress == null) {
     //print('Error: TTS API address not found in preferences');
@@ -41,7 +43,7 @@ Future<dynamic> sendTtsGenerateRequest(String messageContent) async {
   final body = {
     'model': 'tts-1',
     'input': messageContent,
-    'voice': 'fr-FR-DeniseNeural',
+    'voice': speechModel,
     'response_format': 'mp3',
   };
 
@@ -49,7 +51,7 @@ Future<dynamic> sendTtsGenerateRequest(String messageContent) async {
     final response = await http.post(
       url,
       headers: {
-        'Authorization': 'Bearer your_api_key_here',
+        'Authorization': 'Bearer ${ttsApiKey ?? 'your_api_key_here'}',
         'Content-Type': 'application/json',
       },
       body: jsonEncode(body),

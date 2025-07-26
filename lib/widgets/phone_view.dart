@@ -3,6 +3,7 @@ import 'dart:math';
 
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:speech_to_text/speech_recognition_error.dart';
 import 'package:speech_to_text/speech_recognition_result.dart';
 import 'package:speech_to_text/speech_to_text.dart';
@@ -25,7 +26,7 @@ class PhoneView extends StatefulWidget {
 
 class _PhoneViewState extends State<PhoneView> {
   // Debug variable - set to true to show debug controls
-  final bool debug = false;
+  bool debug = false;
 
   bool _hasSpeech = false;
   final bool _logEvents = false;
@@ -45,6 +46,13 @@ class _PhoneViewState extends State<PhoneView> {
   String _currentLocaleId = '';
   List<LocaleName> _localeNames = [];
   final SpeechToText speech = SpeechToText();
+
+  Future<void> _loadDebugMode() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      debug = prefs.getBool('debug_mode') ?? false;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -193,8 +201,8 @@ class _PhoneViewState extends State<PhoneView> {
   @override
   void initState() {
     super.initState();
-    // Automatically initialize speech at startup
     initSpeechState();
+    _loadDebugMode();
   }
 
   // This is called each time the users wants to start a new speech
