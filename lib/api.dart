@@ -29,7 +29,7 @@ Future<Map<String, dynamic>> sendChatCompletion(
 Future<dynamic> sendTtsGenerateRequest(String messageContent) async {
   final prefs = await SharedPreferences.getInstance();
   final ttsApiAddress = prefs.getString('tts_api_address');
-  final speechModel = prefs.getString('speech_model') ?? 'alloy';
+  final voice = prefs.getString('voice') ?? 'alloy';
   final ttsApiKey = prefs.getString('api_key_tts');
 
   if (ttsApiAddress == null) {
@@ -43,7 +43,7 @@ Future<dynamic> sendTtsGenerateRequest(String messageContent) async {
   final body = {
     'model': 'tts-1',
     'input': messageContent,
-    'voice': speechModel,
+    'voice': voice,
     'response_format': 'mp3',
   };
 

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_chat_bubble/chat_bubble.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../api.dart';

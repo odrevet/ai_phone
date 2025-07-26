@@ -12,7 +12,7 @@ class SettingsState extends State<Settings> {
   final TextEditingController _openAIController = TextEditingController();
   final TextEditingController _ttsController = TextEditingController();
   final TextEditingController _generationModelController = TextEditingController();
-  final TextEditingController _speechModelController = TextEditingController();
+  final TextEditingController _voiceController = TextEditingController();
   final TextEditingController _apiKeyGenerationController = TextEditingController();
   final TextEditingController _apiKeyTtsController = TextEditingController();
   bool _debugMode = false;
@@ -30,7 +30,7 @@ class SettingsState extends State<Settings> {
       _openAIController.text = prefs.getString('openai_api_address') ?? '';
       _ttsController.text = prefs.getString('tts_api_address') ?? '';
       _generationModelController.text = prefs.getString('generation_model') ?? '';
-      _speechModelController.text = prefs.getString('speech_model') ?? '';
+      _voiceController.text = prefs.getString('voice') ?? '';
       _apiKeyGenerationController.text = prefs.getString('api_key_generation') ?? '';
       _apiKeyTtsController.text = prefs.getString('api_key_tts') ?? '';
       _debugMode = prefs.getBool('debug_mode') ?? false;
@@ -43,7 +43,7 @@ class SettingsState extends State<Settings> {
     await prefs.setString('openai_api_address', _openAIController.text);
     await prefs.setString('tts_api_address', _ttsController.text);
     await prefs.setString('generation_model', _generationModelController.text);
-    await prefs.setString('speech_model', _speechModelController.text);
+    await prefs.setString('voice', _voiceController.text);
     await prefs.setString('api_key_generation', _apiKeyGenerationController.text);
     await prefs.setString('api_key_tts', _apiKeyTtsController.text);
     await prefs.setBool('debug_mode', _debugMode);
@@ -132,13 +132,13 @@ class SettingsState extends State<Settings> {
               ),
               SizedBox(height: 20),
               Text(
-                'Model',
+                'Voice',
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
               ),
               TextField(
-                controller: _speechModelController,
+                controller: _voiceController,
                 decoration: InputDecoration(
-                  hintText: 'Enter speech model (e.g., whisper-1, speech-to-text-v1)',
+                  hintText: 'Enter voice (e.g., alloy)',
                 ),
               ),
               SizedBox(height: 30),
@@ -197,7 +197,7 @@ class SettingsState extends State<Settings> {
     _openAIController.dispose();
     _ttsController.dispose();
     _generationModelController.dispose();
-    _speechModelController.dispose();
+    _voiceController.dispose();
     _apiKeyGenerationController.dispose();
     _apiKeyTtsController.dispose();
     super.dispose();
