@@ -308,10 +308,8 @@ class _PhoneViewState extends State<PhoneView> {
             await player.play(BytesSource(data));
 
             // Wait for audio to complete, then start listening again if enabled
-            print("----------------");
             print(automaticListen);
             if (automaticListen) {
-              print("YES");
               player.onPlayerComplete.listen((_) {
                 if (mounted && _hasSpeech) {
                   // Small delay to ensure smooth transition

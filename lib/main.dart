@@ -1,4 +1,4 @@
-//import 'package:ai_phone/widgets/contacts_view.dart';
+import 'package:ai_phone/widgets/contacts_view.dart';
 import 'package:ai_phone/widgets/phone_view.dart';
 import 'package:ai_phone/widgets/settings.dart';
 import 'package:ai_phone/widgets/sms_view.dart';
@@ -15,7 +15,6 @@ class SpeechSampleApp extends StatefulWidget {
 }
 
 class _SpeechSampleAppState extends State<SpeechSampleApp> {
-  //List<Map<String, String>> conversationHistory = [];
   final List<Map<String, String>> conversationHistory = [
     {"role": "system", "content": "give short answers"},
   ];
@@ -61,7 +60,7 @@ class _SpeechSampleAppState extends State<SpeechSampleApp> {
         conversationHistory: conversationHistory,
         addConversation: addConversation,
       ),
-      //ContactsView(),
+      ContactsView(),
       Settings(),
     ];
 
@@ -73,10 +72,10 @@ class _SpeechSampleAppState extends State<SpeechSampleApp> {
           items: const <BottomNavigationBarItem>[
             BottomNavigationBarItem(icon: Icon(Icons.phone), label: 'Phone'),
             BottomNavigationBarItem(icon: Icon(Icons.message), label: 'SMS'),
-            /*BottomNavigationBarItem(
+            BottomNavigationBarItem(
               icon: Icon(Icons.person),
               label: 'Contacts',
-            ),*/
+            ),
             BottomNavigationBarItem(
               icon: Icon(Icons.settings),
               label: 'settings',
