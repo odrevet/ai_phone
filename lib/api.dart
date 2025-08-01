@@ -60,8 +60,8 @@ Future<dynamic> sendTtsGenerateRequest(String messageContent) async {
       print('Error: TTS request failed with status ${response.statusCode}');
       print('Response body: ${response.body}');
 
-      print("request was ${body}");
-      print("header was ${headers}");
+      print("request was $body");
+      print("header was $headers");
 
       return null;
     }

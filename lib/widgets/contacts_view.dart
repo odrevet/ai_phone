@@ -7,45 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:image/image.dart' as img;
 
-class Contact {
-  final String id;
-  final String name;
-  final String phoneNumber;
-  final String character;
-
-  Contact({
-    required this.id,
-    required this.name,
-    required this.phoneNumber,
-    required this.character,
-  });
-
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'name': name,
-      'phoneNumber': phoneNumber,
-      'character': character,
-    };
-  }
-
-  static Contact fromJson(Map<String, dynamic> json) {
-    return Contact(
-      id: json['id'],
-      name: json['name'],
-      phoneNumber: json['phoneNumber'],
-      character: json['character'],
-    );
-  }
-
-  String get initials {
-    List<String> nameParts = name.trim().split(' ');
-    if (nameParts.isEmpty) return '?';
-    if (nameParts.length == 1) return nameParts[0][0].toUpperCase();
-    return '${nameParts[0][0]}${nameParts[nameParts.length - 1][0]}'
-        .toUpperCase();
-  }
-}
+import '../models/contact.dart';
 
 class ContactsView extends StatefulWidget {
   const ContactsView({super.key});
@@ -148,13 +110,14 @@ class _ContactsViewState extends State<ContactsView> {
       if (image != null) {
         for (final chunk in image.textData!.entries) {
           String value = chunk.value;
-          try {
-            final decoded = utf8.decode(base64.decode(value));
-            metadata[chunk.key] = decoded;
-          } catch (e) {
-            // If base64 decoding fails, use original value
-            metadata[chunk.key] = value;
-          }
+          final decoded = utf8.decode(base64.decode(value));
+          metadata[chunk.key] = decoded;
+          final jsonMap = json.decode(decoded) as Map<String, dynamic>;
+          jsonMap.forEach((k, v) {
+            print("------------");
+            print(k);
+            print(v);
+          });
         }
       }
     } catch (e) {
@@ -389,6 +352,13 @@ class _CharacterCardMetadataDialogState
   final _nameController = TextEditingController();
   final _phoneController = TextEditingController();
   final _characterController = TextEditingController();
+  final _scenarioController = TextEditingController();
+  final _firstMessageController = TextEditingController();
+  final _messageExampleController = TextEditingController();
+  final _creatorCommentController = TextEditingController();
+  final _avatarController = TextEditingController();
+  final _chatController = TextEditingController();
+  final _tagsController = TextEditingController();
 
   @override
   void initState() {
@@ -422,11 +392,28 @@ class _CharacterCardMetadataDialogState
         if (decoded is Map<String, dynamic>) {
           characterName = decoded['name'] ?? decoded['char_name'] ?? '';
           final description = decoded['description'] ?? decoded['personality'] ?? '';
+          final scenario = decoded['scenario'] ?? '';
+          final firstMes = decoded['first_mes'] ?? '';
+          final mesExample = decoded['mes_example'] ?? '';
+          final creatorComment = decoded['creatorcomment'] ?? decoded['creator_notes'] ?? '';
+          final avatar = decoded['avatar'] ?? '';
+          final chat = decoded['chat'] ?? '';
+          final tags = decoded['tags'] ?? [];
 
           _nameController.text = characterName;
           _characterController.text = description.length > 100
               ? description.substring(0, 100) + '...'
               : description;
+          _scenarioController.text = scenario;
+          _firstMessageController.text = firstMes;
+          _messageExampleController.text = mesExample;
+          _creatorCommentController.text = creatorComment;
+          _avatarController.text = avatar;
+          _chatController.text = chat;
+
+          if (tags is List) {
+            _tagsController.text = tags.join(', ');
+          }
         }
       } catch (e) {
         // If JSON parsing fails, try to extract name from plain text
@@ -450,16 +437,36 @@ class _CharacterCardMetadataDialogState
     _nameController.dispose();
     _phoneController.dispose();
     _characterController.dispose();
+    _scenarioController.dispose();
+    _firstMessageController.dispose();
+    _messageExampleController.dispose();
+    _creatorCommentController.dispose();
+    _avatarController.dispose();
+    _chatController.dispose();
+    _tagsController.dispose();
     super.dispose();
   }
 
   void _import() {
     if (_formKey.currentState!.validate()) {
+      final tagsText = _tagsController.text.trim();
+      final tagsList = tagsText.isEmpty
+          ? <String>[]
+          : tagsText.split(',').map((tag) => tag.trim()).where((tag) => tag.isNotEmpty).toList();
+
       final contact = Contact(
         id: DateTime.now().millisecondsSinceEpoch.toString(),
         name: _nameController.text.trim(),
         phoneNumber: _phoneController.text.trim(),
         character: _characterController.text.trim(),
+        scenario: _scenarioController.text.trim(),
+        firstMessage: _firstMessageController.text.trim(),
+        messageExample: _messageExampleController.text.trim(),
+        creatorComment: _creatorCommentController.text.trim(),
+        avatar: _avatarController.text.trim(),
+        chat: _chatController.text.trim(),
+        tags: tagsList,
+        data: {},
       );
       widget.onImport(contact);
       Navigator.pop(context);
@@ -470,115 +477,179 @@ class _CharacterCardMetadataDialogState
   Widget build(BuildContext context) {
     return AlertDialog(
       title: Text('Import Character Card'),
-      content: SingleChildScrollView(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'File: ${widget.filename}',
-              style: TextStyle(fontSize: 12, color: Colors.grey[600]),
-            ),
-            SizedBox(height: 8),
-            ExpansionTile(
-              title: Text(
-                'Metadata (${widget.metadata.length} items)',
-                style: TextStyle(fontSize: 14),
+      content: Container(
+        width: double.maxFinite,
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'File: ${widget.filename}',
+                style: TextStyle(fontSize: 12, color: Colors.grey[600]),
               ),
-              children: [
-                Container(
-                  height: 150,
-                  child: ListView.builder(
-                    itemCount: widget.metadata.length,
-                    itemBuilder: (context, index) {
-                      final entry = widget.metadata.entries.elementAt(index);
-                      return Padding(
-                        padding: EdgeInsets.symmetric(vertical: 2),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            SizedBox(
-                              width: 80,
-                              child: Text(
-                                '${entry.key}:',
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.bold,
+              SizedBox(height: 8),
+              ExpansionTile(
+                title: Text(
+                  'Metadata (${widget.metadata.length} items)',
+                  style: TextStyle(fontSize: 14),
+                ),
+                children: [
+                  Container(
+                    height: 150,
+                    child: ListView.builder(
+                      itemCount: widget.metadata.length,
+                      itemBuilder: (context, index) {
+                        final entry = widget.metadata.entries.elementAt(index);
+                        return Padding(
+                          padding: EdgeInsets.symmetric(vertical: 2),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              SizedBox(
+                                width: 80,
+                                child: Text(
+                                  '${entry.key}:',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
                               ),
-                            ),
-                            Expanded(
-                              child: Text(
-                                entry.value.length > 100
-                                    ? '${entry.value.substring(0, 100)}...'
-                                    : entry.value,
-                                style: TextStyle(fontSize: 12),
+                              Expanded(
+                                child: Text(
+                                  entry.value.length > 100
+                                      ? '${entry.value.substring(0, 100)}...'
+                                      : entry.value,
+                                  style: TextStyle(fontSize: 12),
+                                ),
                               ),
-                            ),
-                          ],
-                        ),
-                      );
-                    },
-                  ),
-                ),
-              ],
-            ),
-            SizedBox(height: 16),
-            Form(
-              key: _formKey,
-              child: Column(
-                children: [
-                  TextFormField(
-                    controller: _nameController,
-                    decoration: InputDecoration(
-                      labelText: 'Name',
-                      prefixIcon: Icon(Icons.person),
-                      border: OutlineInputBorder(),
+                            ],
+                          ),
+                        );
+                      },
                     ),
-                    validator: (value) {
-                      if (value == null || value.trim().isEmpty) {
-                        return 'Please enter a name';
-                      }
-                      return null;
-                    },
-                  ),
-                  SizedBox(height: 16),
-                  TextFormField(
-                    controller: _phoneController,
-                    decoration: InputDecoration(
-                      labelText: 'Phone Number',
-                      prefixIcon: Icon(Icons.phone),
-                      border: OutlineInputBorder(),
-                    ),
-                    keyboardType: TextInputType.phone,
-                    validator: (value) {
-                      if (value == null || value.trim().isEmpty) {
-                        return 'Please enter a phone number';
-                      }
-                      return null;
-                    },
-                  ),
-                  SizedBox(height: 16),
-                  TextFormField(
-                    controller: _characterController,
-                    decoration: InputDecoration(
-                      labelText: 'Character/Role',
-                      prefixIcon: Icon(Icons.psychology),
-                      border: OutlineInputBorder(),
-                      hintText: 'e.g., Assistant, Doctor, Teacher',
-                    ),
-                    maxLines: 3,
-                    validator: (value) {
-                      if (value == null || value.trim().isEmpty) {
-                        return 'Please enter a character/role';
-                      }
-                      return null;
-                    },
                   ),
                 ],
               ),
-            ),
-          ],
+              SizedBox(height: 16),
+              Form(
+                key: _formKey,
+                child: Column(
+                  children: [
+                    TextFormField(
+                      controller: _nameController,
+                      decoration: InputDecoration(
+                        labelText: 'Name',
+                        prefixIcon: Icon(Icons.person),
+                        border: OutlineInputBorder(),
+                      ),
+                      validator: (value) {
+                        if (value == null || value.trim().isEmpty) {
+                          return 'Please enter a name';
+                        }
+                        return null;
+                      },
+                    ),
+                    SizedBox(height: 16),
+                    TextFormField(
+                      controller: _phoneController,
+                      decoration: InputDecoration(
+                        labelText: 'Phone Number',
+                        prefixIcon: Icon(Icons.phone),
+                        border: OutlineInputBorder(),
+                      ),
+                      keyboardType: TextInputType.phone,
+                      validator: (value) {
+                        return null;
+                      },
+                    ),
+                    SizedBox(height: 16),
+                    TextFormField(
+                      controller: _characterController,
+                      decoration: InputDecoration(
+                        labelText: 'Character/Role',
+                        prefixIcon: Icon(Icons.psychology),
+                        border: OutlineInputBorder(),
+                        hintText: 'e.g., Assistant, Doctor, Teacher',
+                      ),
+                      maxLines: 3,
+                      validator: (value) {
+                        if (value == null || value.trim().isEmpty) {
+                          return 'Please enter a character/role';
+                        }
+                        return null;
+                      },
+                    ),
+                    SizedBox(height: 16),
+                    TextFormField(
+                      controller: _scenarioController,
+                      decoration: InputDecoration(
+                        labelText: 'Scenario',
+                        prefixIcon: Icon(Icons.settings_applications),
+                        border: OutlineInputBorder(),
+                        hintText: 'Character scenario context',
+                      ),
+                      maxLines: 2,
+                    ),
+                    SizedBox(height: 16),
+                    TextFormField(
+                      controller: _firstMessageController,
+                      decoration: InputDecoration(
+                        labelText: 'First Message',
+                        prefixIcon: Icon(Icons.chat_bubble_outline),
+                        border: OutlineInputBorder(),
+                        hintText: 'Opening message from character',
+                      ),
+                      maxLines: 2,
+                    ),
+                    SizedBox(height: 16),
+                    TextFormField(
+                      controller: _messageExampleController,
+                      decoration: InputDecoration(
+                        labelText: 'Message Example',
+                        prefixIcon: Icon(Icons.format_quote),
+                        border: OutlineInputBorder(),
+                        hintText: 'Example conversation',
+                      ),
+                      maxLines: 2,
+                    ),
+                    SizedBox(height: 16),
+                    TextFormField(
+                      controller: _creatorCommentController,
+                      decoration: InputDecoration(
+                        labelText: 'Creator Comment',
+                        prefixIcon: Icon(Icons.comment),
+                        border: OutlineInputBorder(),
+                        hintText: 'Notes from creator',
+                      ),
+                      maxLines: 2,
+                    ),
+                    SizedBox(height: 16),
+                    TextFormField(
+                      controller: _avatarController,
+                      decoration: InputDecoration(
+                        labelText: 'Avatar',
+                        prefixIcon: Icon(Icons.face),
+                        border: OutlineInputBorder(),
+                        hintText: 'Avatar description or URL',
+                      ),
+                    ),
+                    SizedBox(height: 16),
+                    TextFormField(
+                      controller: _tagsController,
+                      decoration: InputDecoration(
+                        labelText: 'Tags',
+                        prefixIcon: Icon(Icons.local_offer),
+                        border: OutlineInputBorder(),
+                        hintText: 'Comma-separated tags',
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
       actions: [
@@ -647,6 +718,20 @@ class ContactCard extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
               ),
             ),
+            if (contact.tags.isNotEmpty) ...[
+              SizedBox(height: 4),
+              Wrap(
+                spacing: 4,
+                children: contact.tags.take(3).map((tag) => Chip(
+                  label: Text(
+                    tag,
+                    style: TextStyle(fontSize: 10),
+                  ),
+                  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  visualDensity: VisualDensity.compact,
+                )).toList(),
+              ),
+            ],
           ],
         ),
         trailing: PopupMenuButton<String>(
@@ -712,39 +797,77 @@ class ContactDialog extends StatefulWidget {
   _ContactDialogState createState() => _ContactDialogState();
 }
 
-class _ContactDialogState extends State<ContactDialog> {
+class _ContactDialogState extends State<ContactDialog>
+    with SingleTickerProviderStateMixin {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _phoneController = TextEditingController();
   final _characterController = TextEditingController();
+  final _scenarioController = TextEditingController();
+  final _firstMessageController = TextEditingController();
+  final _messageExampleController = TextEditingController();
+  final _creatorCommentController = TextEditingController();
+  final _avatarController = TextEditingController();
+  final _chatController = TextEditingController();
+  final _tagsController = TextEditingController();
+
+  late TabController _tabController;
 
   @override
   void initState() {
     super.initState();
+    _tabController = TabController(length: 2, vsync: this);
+
     if (widget.contact != null) {
       _nameController.text = widget.contact!.name;
       _phoneController.text = widget.contact!.phoneNumber;
       _characterController.text = widget.contact!.character;
+      _scenarioController.text = widget.contact!.scenario;
+      _firstMessageController.text = widget.contact!.firstMessage;
+      _messageExampleController.text = widget.contact!.messageExample;
+      _creatorCommentController.text = widget.contact!.creatorComment;
+      _avatarController.text = widget.contact!.avatar;
+      _chatController.text = widget.contact!.chat;
+      _tagsController.text = widget.contact!.tags.join(', ');
     }
   }
 
   @override
   void dispose() {
+    _tabController.dispose();
     _nameController.dispose();
     _phoneController.dispose();
     _characterController.dispose();
+    _scenarioController.dispose();
+    _firstMessageController.dispose();
+    _messageExampleController.dispose();
+    _creatorCommentController.dispose();
+    _avatarController.dispose();
+    _chatController.dispose();
+    _tagsController.dispose();
     super.dispose();
   }
 
   void _save() {
     if (_formKey.currentState!.validate()) {
+      final tagsText = _tagsController.text.trim();
+      final tagsList = tagsText.isEmpty
+          ? <String>[]
+          : tagsText.split(',').map((tag) => tag.trim()).where((tag) => tag.isNotEmpty).toList();
+
       final contact = Contact(
-        id:
-        widget.contact?.id ??
-            DateTime.now().millisecondsSinceEpoch.toString(),
+        id: widget.contact?.id ?? DateTime.now().millisecondsSinceEpoch.toString(),
         name: _nameController.text.trim(),
         phoneNumber: _phoneController.text.trim(),
         character: _characterController.text.trim(),
+        scenario: _scenarioController.text.trim(),
+        firstMessage: _firstMessageController.text.trim(),
+        messageExample: _messageExampleController.text.trim(),
+        creatorComment: _creatorCommentController.text.trim(),
+        avatar: _avatarController.text.trim(),
+        chat: _chatController.text.trim(),
+        tags: tagsList,
+        data: widget.contact?.data ?? {},
       );
       widget.onSave(contact);
       Navigator.pop(context);
@@ -755,10 +878,46 @@ class _ContactDialogState extends State<ContactDialog> {
   Widget build(BuildContext context) {
     return AlertDialog(
       title: Text(widget.contact == null ? 'Add Contact' : 'Edit Contact'),
-      content: Form(
-        key: _formKey,
+      content: Container(
+        width: double.maxFinite,
+        height: MediaQuery.of(context).size.height * 0.7,
         child: Column(
-          mainAxisSize: MainAxisSize.min,
+          children: [
+            TabBar(
+              controller: _tabController,
+              tabs: [
+                Tab(text: 'Basic Info'),
+                Tab(text: 'Character Details'),
+              ],
+            ),
+            Expanded(
+              child: TabBarView(
+                controller: _tabController,
+                children: [
+                  _buildBasicInfoTab(),
+                  _buildCharacterDetailsTab(),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: Text('Cancel'),
+        ),
+        ElevatedButton(onPressed: _save, child: Text('Save')),
+      ],
+    );
+  }
+
+  Widget _buildBasicInfoTab() {
+    return Form(
+      key: _formKey,
+      child: SingleChildScrollView(
+        padding: EdgeInsets.all(16),
+        child: Column(
           children: [
             TextFormField(
               controller: _nameController,
@@ -799,6 +958,7 @@ class _ContactDialogState extends State<ContactDialog> {
                 border: OutlineInputBorder(),
                 hintText: 'e.g., Assistant, Doctor, Teacher',
               ),
+              maxLines: 3,
               validator: (value) {
                 if (value == null || value.trim().isEmpty) {
                   return 'Please enter a character/role';
@@ -806,16 +966,92 @@ class _ContactDialogState extends State<ContactDialog> {
                 return null;
               },
             ),
+            SizedBox(height: 16),
+            TextFormField(
+              controller: _tagsController,
+              decoration: InputDecoration(
+                labelText: 'Tags',
+                prefixIcon: Icon(Icons.local_offer),
+                border: OutlineInputBorder(),
+                hintText: 'Comma-separated tags',
+              ),
+            ),
           ],
         ),
       ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: Text('Cancel'),
-        ),
-        ElevatedButton(onPressed: _save, child: Text('Save')),
-      ],
+    );
+  }
+
+  Widget _buildCharacterDetailsTab() {
+    return SingleChildScrollView(
+      padding: EdgeInsets.all(16),
+      child: Column(
+        children: [
+          TextFormField(
+            controller: _scenarioController,
+            decoration: InputDecoration(
+              labelText: 'Scenario',
+              prefixIcon: Icon(Icons.settings_applications),
+              border: OutlineInputBorder(),
+              hintText: 'Character scenario context',
+            ),
+            maxLines: 3,
+          ),
+          SizedBox(height: 16),
+          TextFormField(
+            controller: _firstMessageController,
+            decoration: InputDecoration(
+              labelText: 'First Message',
+              prefixIcon: Icon(Icons.chat_bubble_outline),
+              border: OutlineInputBorder(),
+              hintText: 'Opening message from character',
+            ),
+            maxLines: 3,
+          ),
+          SizedBox(height: 16),
+          TextFormField(
+            controller: _messageExampleController,
+            decoration: InputDecoration(
+              labelText: 'Message Example',
+              prefixIcon: Icon(Icons.format_quote),
+              border: OutlineInputBorder(),
+              hintText: 'Example conversation',
+            ),
+            maxLines: 3,
+          ),
+          SizedBox(height: 16),
+          TextFormField(
+            controller: _creatorCommentController,
+            decoration: InputDecoration(
+              labelText: 'Creator Comment',
+              prefixIcon: Icon(Icons.comment),
+              border: OutlineInputBorder(),
+              hintText: 'Notes from creator',
+            ),
+            maxLines: 2,
+          ),
+          SizedBox(height: 16),
+          TextFormField(
+            controller: _avatarController,
+            decoration: InputDecoration(
+              labelText: 'Avatar',
+              prefixIcon: Icon(Icons.face),
+              border: OutlineInputBorder(),
+              hintText: 'Avatar description or URL',
+            ),
+          ),
+          SizedBox(height: 16),
+          TextFormField(
+            controller: _chatController,
+            decoration: InputDecoration(
+              labelText: 'Chat',
+              prefixIcon: Icon(Icons.chat),
+              border: OutlineInputBorder(),
+              hintText: 'Chat information',
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
