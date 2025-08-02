@@ -13,10 +13,17 @@ import 'contact_card.dart';
 import 'contact_dialog.dart';
 
 class ContactsView extends StatefulWidget {
-  const ContactsView({super.key});
+  final Function(Contact)? onContactCall;
+  final Function(Contact)? onContactSms;
+
+  const ContactsView({
+    super.key,
+    this.onContactCall,
+    this.onContactSms,
+  });
 
   @override
-  _ContactsViewState createState() => _ContactsViewState();
+  State<ContactsView> createState() => _ContactsViewState();
 }
 
 class _ContactsViewState extends State<ContactsView> {
@@ -199,26 +206,6 @@ class _ContactsViewState extends State<ContactsView> {
     );
   }
 
-
-  void _smsContact(Contact contact) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('SMS ${contact.name}...'),
-        backgroundColor: Colors.green,
-      ),
-    );
-  }
-
-
-  void _callContact(Contact contact) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Calling ${contact.name}...'),
-        backgroundColor: Colors.green,
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     if (isLoading) {
@@ -273,8 +260,16 @@ class _ContactsViewState extends State<ContactsView> {
                 final contact = contacts[index];
                 return ContactCard(
                   contact: contact,
-                  onCall: () => _callContact(contact),
-                  onSms: () => _smsContact(contact),
+                  onCall: () {
+                    if (widget.onContactCall != null) {
+                      widget.onContactCall!(contact);
+                    }
+                  },
+                  onSms: () {
+                    if (widget.onContactSms != null) {
+                      widget.onContactSms!(contact);
+                    }
+                  },
                   onEdit: () => _editContact(contact, index),
                   onDelete: () => _deleteContact(index),
                 );

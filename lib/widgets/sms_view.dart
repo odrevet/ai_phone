@@ -2,15 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../api.dart';
+import '../models/contact.dart';
 
 class SMSView extends StatefulWidget {
   final List<Map<String, String>> conversationHistory;
-  final Function addConversation;
+  final Function(String, String) addConversation;
+  final Contact? currentContact;
+  final VoidCallback? clearConversation;
 
   const SMSView({
     super.key,
     required this.conversationHistory,
     required this.addConversation,
+    this.currentContact,
+    this.clearConversation,
   });
 
   @override
@@ -239,7 +244,7 @@ class SMSViewState extends State<SMSView> with TickerProviderStateMixin {
     return Scaffold(
       backgroundColor: Colors.grey.shade50,
       appBar: AppBar(
-        title: const Text('SMS View'),
+        title: Text('SMS ${widget.currentContact?.name}'),
         backgroundColor: Colors.white,
         foregroundColor: Colors.black87,
         elevation: 0,

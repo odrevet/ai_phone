@@ -9,15 +9,20 @@ import 'package:speech_to_text/speech_recognition_result.dart';
 import 'package:speech_to_text/speech_to_text.dart';
 
 import '../api.dart';
+import '../models/contact.dart';
 
 class PhoneView extends StatefulWidget {
   final List<Map<String, String>> conversationHistory;
-  final Function addConversation;
+  final Function(String, String) addConversation;
+  final Contact? currentContact;
+  final VoidCallback? clearConversation;
 
   const PhoneView({
     super.key,
     required this.conversationHistory,
     required this.addConversation,
+    this.currentContact,
+    this.clearConversation,
   });
 
   @override
@@ -106,7 +111,7 @@ class _PhoneViewState extends State<PhoneView> {
                 const SizedBox(height: 20),
               ],
 
-              // Main phone button - centered and expandable
+              // Main phone button
               Expanded(
                 child: Center(
                   child: Container(
