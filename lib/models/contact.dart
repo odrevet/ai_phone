@@ -2,7 +2,8 @@ class Contact {
   final String id;
   final String name;
   final String phoneNumber;
-  final String character;
+  final String description;
+  final String personality;
   final String scenario;
   final String firstMessage;
   final String messageExample;
@@ -16,7 +17,8 @@ class Contact {
     required this.id,
     required this.name,
     required this.phoneNumber,
-    required this.character,
+    required this.description, // Renamed from character
+    this.personality = '', // Added personality with default empty string
     this.scenario = '',
     this.firstMessage = '',
     this.messageExample = '',
@@ -32,7 +34,8 @@ class Contact {
       'id': id,
       'name': name,
       'phoneNumber': phoneNumber,
-      'character': character,
+      'description': description, // Updated field name
+      'personality': personality, // Added personality to JSON
       'scenario': scenario,
       'first_mes': firstMessage,
       'mes_example': messageExample,
@@ -49,7 +52,8 @@ class Contact {
       id: json['id'] ?? '',
       name: json['name'] ?? '',
       phoneNumber: json['phoneNumber'] ?? '',
-      character: json['character'] ?? '',
+      description: json['description'] ?? json['character'] ?? '', // Support both old and new field names
+      personality: json['personality'] ?? '', // Added personality parsing
       scenario: json['scenario'] ?? '',
       firstMessage: json['first_mes'] ?? '',
       messageExample: json['mes_example'] ?? '',

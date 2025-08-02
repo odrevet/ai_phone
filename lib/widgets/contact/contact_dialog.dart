@@ -17,7 +17,9 @@ class _ContactDialogState extends State<ContactDialog>
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _phoneController = TextEditingController();
-  final _characterController = TextEditingController();
+  final _descriptionController =
+      TextEditingController(); // Updated from character
+  final _personalityController = TextEditingController(); // Added personality
   final _scenarioController = TextEditingController();
   final _firstMessageController = TextEditingController();
   final _messageExampleController = TextEditingController();
@@ -36,7 +38,10 @@ class _ContactDialogState extends State<ContactDialog>
     if (widget.contact != null) {
       _nameController.text = widget.contact!.name;
       _phoneController.text = widget.contact!.phoneNumber;
-      _characterController.text = widget.contact!.character;
+      _descriptionController.text =
+          widget.contact!.description; // Updated field
+      _personalityController.text =
+          widget.contact!.personality; // Added personality
       _scenarioController.text = widget.contact!.scenario;
       _firstMessageController.text = widget.contact!.firstMessage;
       _messageExampleController.text = widget.contact!.messageExample;
@@ -52,7 +57,8 @@ class _ContactDialogState extends State<ContactDialog>
     _tabController.dispose();
     _nameController.dispose();
     _phoneController.dispose();
-    _characterController.dispose();
+    _descriptionController.dispose(); // Updated from character
+    _personalityController.dispose(); // Added personality disposal
     _scenarioController.dispose();
     _firstMessageController.dispose();
     _messageExampleController.dispose();
@@ -80,7 +86,10 @@ class _ContactDialogState extends State<ContactDialog>
             DateTime.now().millisecondsSinceEpoch.toString(),
         name: _nameController.text.trim(),
         phoneNumber: _phoneController.text.trim(),
-        character: _characterController.text.trim(),
+        description: _descriptionController.text.trim(),
+        // Updated field
+        personality: _personalityController.text.trim(),
+        // Added personality
         scenario: _scenarioController.text.trim(),
         firstMessage: _firstMessageController.text.trim(),
         messageExample: _messageExampleController.text.trim(),
@@ -169,20 +178,31 @@ class _ContactDialogState extends State<ContactDialog>
             ),
             SizedBox(height: 16),
             TextFormField(
-              controller: _characterController,
+              controller: _descriptionController,
               decoration: InputDecoration(
-                labelText: 'Character/Role',
-                prefixIcon: Icon(Icons.psychology),
+                labelText: 'Description',
+                prefixIcon: Icon(Icons.description),
                 border: OutlineInputBorder(),
-                hintText: 'e.g., Assistant, Doctor, Teacher',
+                hintText: 'Character description and background',
               ),
               maxLines: 3,
               validator: (value) {
                 if (value == null || value.trim().isEmpty) {
-                  return 'Please enter a character/role';
+                  return 'Please enter a description';
                 }
                 return null;
               },
+            ),
+            SizedBox(height: 16),
+            TextFormField(
+              controller: _personalityController,
+              decoration: InputDecoration(
+                labelText: 'Personality',
+                prefixIcon: Icon(Icons.mood),
+                border: OutlineInputBorder(),
+                hintText: 'Character personality traits',
+              ),
+              maxLines: 3,
             ),
             SizedBox(height: 16),
             TextFormField(

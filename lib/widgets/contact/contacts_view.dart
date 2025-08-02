@@ -203,7 +203,7 @@ class _ContactsViewState extends State<ContactsView> {
     // Here you would integrate with your phone call functionality
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('Calling ${contact.name} (${contact.character})...'),
+        content: Text('Calling ${contact.name}...'),
         backgroundColor: Colors.green,
       ),
     );

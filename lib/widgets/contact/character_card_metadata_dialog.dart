@@ -26,7 +26,8 @@ class _CharacterCardMetadataDialogState
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _phoneController = TextEditingController();
-  final _characterController = TextEditingController();
+  final _descriptionController = TextEditingController();
+  final _personalityController = TextEditingController();
   final _scenarioController = TextEditingController();
   final _firstMessageController = TextEditingController();
   final _messageExampleController = TextEditingController();
@@ -51,42 +52,37 @@ class _CharacterCardMetadataDialogState
     // Try to parse JSON if the metadata contains character data
     if (characterData.isNotEmpty) {
       try {
-        final decoded = json.decode(characterData);
-        if (decoded is Map<String, dynamic>) {
-          characterName = decoded['name'] ?? decoded['char_name'] ?? '';
-          final description =
-              decoded['description'] ?? decoded['personality'] ?? '';
-          final scenario = decoded['scenario'] ?? '';
-          final firstMes = decoded['first_mes'] ?? '';
-          final mesExample = decoded['mes_example'] ?? '';
-          final creatorComment =
-              decoded['creatorcomment'] ?? decoded['creator_notes'] ?? '';
-          final avatar = decoded['avatar'] ?? '';
-          final chat = decoded['chat'] ?? '';
-          final tags = decoded['tags'] ?? [];
+        final charaDecoded = json.decode(characterData);
+        final dataDecoded = charaDecoded['data'];
+        characterName = dataDecoded['name'] ?? '';
+        final description = dataDecoded['description'] ?? '';
+        final personality = dataDecoded['personality'] ?? '';
+        final scenario = dataDecoded['scenario'] ?? '';
+        final firstMes = dataDecoded['first_mes'] ?? '';
+        final mesExample = dataDecoded['mes_example'] ?? '';
+        final creatorComment =
+            dataDecoded['creatorcomment'] ?? dataDecoded['creator_notes'] ?? '';
+        final avatar = dataDecoded['avatar'] ?? '';
+        final chat = dataDecoded['chat'] ?? '';
+        final tags = dataDecoded['tags'] ?? [];
 
-          _nameController.text = characterName;
-          _characterController.text = description.length > 100
-              ? description.substring(0, 100) + '...'
-              : description;
-          _scenarioController.text = scenario;
-          _firstMessageController.text = firstMes;
-          _messageExampleController.text = mesExample;
-          _creatorCommentController.text = creatorComment;
-          _avatarController.text = avatar;
-          _chatController.text = chat;
+        _nameController.text = characterName;
+        _descriptionController.text = description.length > 100
+            ? description.substring(0, 100) + '...'
+            : description;
+        _personalityController.text = personality; // Handle personality field
+        _scenarioController.text = scenario;
+        _firstMessageController.text = firstMes;
+        _messageExampleController.text = mesExample;
+        _creatorCommentController.text = creatorComment;
+        _avatarController.text = avatar;
+        _chatController.text = chat;
 
-          if (tags is List) {
-            _tagsController.text = tags.join(', ');
-          }
+        if (tags is List) {
+          _tagsController.text = tags.join(', ');
         }
       } catch (e) {
-        // If JSON parsing fails, try to extract name from plain text
-        if (characterData.length > 10) {
-          _characterController.text = characterData.length > 100
-              ? characterData.substring(0, 100) + '...'
-              : characterData;
-        }
+        print("ERROR: $e");
       }
     }
 
@@ -103,7 +99,8 @@ class _CharacterCardMetadataDialogState
   void dispose() {
     _nameController.dispose();
     _phoneController.dispose();
-    _characterController.dispose();
+    _descriptionController.dispose();
+    _personalityController.dispose();
     _scenarioController.dispose();
     _firstMessageController.dispose();
     _messageExampleController.dispose();
@@ -129,7 +126,8 @@ class _CharacterCardMetadataDialogState
         id: DateTime.now().millisecondsSinceEpoch.toString(),
         name: _nameController.text.trim(),
         phoneNumber: _phoneController.text.trim(),
-        character: _characterController.text.trim(),
+        description: _descriptionController.text.trim(),
+        personality: _personalityController.text.trim(),
         scenario: _scenarioController.text.trim(),
         firstMessage: _firstMessageController.text.trim(),
         messageExample: _messageExampleController.text.trim(),
@@ -237,20 +235,32 @@ class _CharacterCardMetadataDialogState
                     ),
                     SizedBox(height: 16),
                     TextFormField(
-                      controller: _characterController,
+                      controller: _descriptionController,
                       decoration: InputDecoration(
-                        labelText: 'Character/Role',
-                        prefixIcon: Icon(Icons.psychology),
+                        labelText: 'Description',
+                        prefixIcon: Icon(Icons.description),
                         border: OutlineInputBorder(),
-                        hintText: 'e.g., Assistant, Doctor, Teacher',
+                        hintText: 'Character description and background',
                       ),
                       maxLines: 3,
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
-                          return 'Please enter a character/role';
+                          return 'Please enter a description';
                         }
                         return null;
                       },
+                    ),
+                    SizedBox(height: 16),
+                    // Added personality field
+                    TextFormField(
+                      controller: _personalityController,
+                      decoration: InputDecoration(
+                        labelText: 'Personality',
+                        prefixIcon: Icon(Icons.mood),
+                        border: OutlineInputBorder(),
+                        hintText: 'Character personality traits',
+                      ),
+                      maxLines: 3,
                     ),
                     SizedBox(height: 16),
                     TextFormField(

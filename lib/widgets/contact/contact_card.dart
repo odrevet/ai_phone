@@ -44,7 +44,7 @@ class ContactCard extends StatelessWidget {
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Text(
-                contact.character,
+                contact.description,
                 style: TextStyle(
                   fontSize: 12,
                   color: Colors.grey[700],
