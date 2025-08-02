@@ -1,4 +1,4 @@
-import 'package:ai_phone/widgets/contacts_view.dart';
+import 'package:ai_phone/widgets/contact/contacts_view.dart';
 import 'package:ai_phone/widgets/phone_view.dart';
 import 'package:ai_phone/widgets/settings.dart';
 import 'package:ai_phone/widgets/sms_view.dart';

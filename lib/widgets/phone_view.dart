@@ -323,7 +323,10 @@ class _PhoneViewState extends State<PhoneView> {
             }
           } else {
             // If no audio data, start listening immediately if enabled
-            if (automaticListen && mounted && _hasSpeech && !speech.isListening) {
+            if (automaticListen &&
+                mounted &&
+                _hasSpeech &&
+                !speech.isListening) {
               Future.delayed(const Duration(milliseconds: 500), () {
                 if (mounted && !speech.isListening) {
                   startListening();
@@ -333,9 +336,9 @@ class _PhoneViewState extends State<PhoneView> {
           }
         } catch (error) {
           if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('TTS error: $error')),
-            );
+            ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(SnackBar(content: Text('TTS error: $error')));
             // Start listening even if TTS fails, but only if enabled
             if (automaticListen && _hasSpeech && !speech.isListening) {
               Future.delayed(const Duration(milliseconds: 500), () {

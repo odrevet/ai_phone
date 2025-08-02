@@ -11,9 +11,11 @@ class Settings extends StatefulWidget {
 class SettingsState extends State<Settings> {
   final TextEditingController _openAIController = TextEditingController();
   final TextEditingController _ttsController = TextEditingController();
-  final TextEditingController _generationModelController = TextEditingController();
+  final TextEditingController _generationModelController =
+      TextEditingController();
   final TextEditingController _voiceController = TextEditingController();
-  final TextEditingController _apiKeyGenerationController = TextEditingController();
+  final TextEditingController _apiKeyGenerationController =
+      TextEditingController();
   final TextEditingController _apiKeyTtsController = TextEditingController();
   bool _debugMode = false;
   bool _disableThinking = true; // Default to true (disabled)
@@ -30,9 +32,11 @@ class SettingsState extends State<Settings> {
     setState(() {
       _openAIController.text = prefs.getString('openai_api_address') ?? '';
       _ttsController.text = prefs.getString('tts_api_address') ?? '';
-      _generationModelController.text = prefs.getString('generation_model') ?? '';
+      _generationModelController.text =
+          prefs.getString('generation_model') ?? '';
       _voiceController.text = prefs.getString('voice') ?? '';
-      _apiKeyGenerationController.text = prefs.getString('api_key_generation') ?? '';
+      _apiKeyGenerationController.text =
+          prefs.getString('api_key_generation') ?? '';
       _apiKeyTtsController.text = prefs.getString('api_key_tts') ?? '';
       _debugMode = prefs.getBool('debug_mode') ?? false;
       _disableThinking = prefs.getBool('disable_thinking') ?? true;
@@ -46,7 +50,10 @@ class SettingsState extends State<Settings> {
     await prefs.setString('tts_api_address', _ttsController.text);
     await prefs.setString('generation_model', _generationModelController.text);
     await prefs.setString('voice', _voiceController.text);
-    await prefs.setString('api_key_generation', _apiKeyGenerationController.text);
+    await prefs.setString(
+      'api_key_generation',
+      _apiKeyGenerationController.text,
+    );
     await prefs.setString('api_key_tts', _apiKeyTtsController.text);
     await prefs.setBool('debug_mode', _debugMode);
     await prefs.setBool('disable_thinking', _disableThinking);
@@ -78,7 +85,9 @@ class SettingsState extends State<Settings> {
               ),
               TextField(
                 controller: _openAIController,
-                decoration: InputDecoration(hintText: 'Enter generation API address'),
+                decoration: InputDecoration(
+                  hintText: 'Enter generation API address',
+                ),
               ),
               SizedBox(height: 20),
               Text(
@@ -101,7 +110,8 @@ class SettingsState extends State<Settings> {
               TextField(
                 controller: _generationModelController,
                 decoration: InputDecoration(
-                  hintText: 'Enter generation model (e.g., gpt-4, claude-3-sonnet)',
+                  hintText:
+                      'Enter generation model (e.g., gpt-4, claude-3-sonnet)',
                 ),
               ),
               SizedBox(height: 30),
@@ -141,13 +151,16 @@ class SettingsState extends State<Settings> {
               TextField(
                 controller: _voiceController,
                 decoration: InputDecoration(
-                  hintText: 'Enter speech model (e.g., whisper-1, speech-to-text-v1)',
+                  hintText:
+                      'Enter speech model (e.g., whisper-1, speech-to-text-v1)',
                 ),
               ),
               SizedBox(height: 16),
               CheckboxListTile(
                 title: Text('Automatic Listen'),
-                subtitle: Text('Automatically start listening after TTS playback ends'),
+                subtitle: Text(
+                  'Automatically start listening after TTS playback ends',
+                ),
                 value: _automaticListen,
                 onChanged: (bool? value) {
                   setState(() {
@@ -166,7 +179,9 @@ class SettingsState extends State<Settings> {
               SizedBox(height: 8),
               CheckboxListTile(
                 title: Text('Enable Debug Mode'),
-                subtitle: Text('Show additional controls and debug information'),
+                subtitle: Text(
+                  'Show additional controls and debug information',
+                ),
                 value: _debugMode,
                 onChanged: (bool? value) {
                   setState(() {
@@ -194,10 +209,7 @@ class SettingsState extends State<Settings> {
                   style: ElevatedButton.styleFrom(
                     padding: EdgeInsets.symmetric(vertical: 16),
                   ),
-                  child: Text(
-                    'Save Settings',
-                    style: TextStyle(fontSize: 16),
-                  ),
+                  child: Text('Save Settings', style: TextStyle(fontSize: 16)),
                 ),
               ),
             ],
