@@ -5,6 +5,7 @@ import '../../models/contact.dart';
 class ContactCard extends StatelessWidget {
   final Contact contact;
   final VoidCallback onCall;
+  final VoidCallback onSms;
   final VoidCallback onEdit;
   final VoidCallback onDelete;
 
@@ -12,6 +13,7 @@ class ContactCard extends StatelessWidget {
     super.key,
     required this.contact,
     required this.onCall,
+    required this.onSms,
     required this.onEdit,
     required this.onDelete,
   });
@@ -62,11 +64,11 @@ class ContactCard extends StatelessWidget {
                     .take(3)
                     .map(
                       (tag) => Chip(
-                        label: Text(tag, style: TextStyle(fontSize: 10)),
-                        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                        visualDensity: VisualDensity.compact,
-                      ),
-                    )
+                    label: Text(tag, style: TextStyle(fontSize: 10)),
+                    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    visualDensity: VisualDensity.compact,
+                  ),
+                )
                     .toList(),
               ),
             ],
@@ -77,6 +79,9 @@ class ContactCard extends StatelessWidget {
             switch (value) {
               case 'call':
                 onCall();
+                break;
+              case 'sms':
+                onSms();
                 break;
               case 'edit':
                 onEdit();
@@ -98,10 +103,20 @@ class ContactCard extends StatelessWidget {
               ),
             ),
             PopupMenuItem(
+              value: 'sms',
+              child: Row(
+                children: [
+                  Icon(Icons.message, color: Colors.blue),
+                  SizedBox(width: 8),
+                  Text('SMS'),
+                ],
+              ),
+            ),
+            PopupMenuItem(
               value: 'edit',
               child: Row(
                 children: [
-                  Icon(Icons.edit, color: Colors.blue),
+                  Icon(Icons.edit, color: Colors.orange),
                   SizedBox(width: 8),
                   Text('Edit'),
                 ],

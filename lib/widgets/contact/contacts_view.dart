@@ -199,8 +199,18 @@ class _ContactsViewState extends State<ContactsView> {
     );
   }
 
+
+  void _smsContact(Contact contact) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('SMS ${contact.name}...'),
+        backgroundColor: Colors.green,
+      ),
+    );
+  }
+
+
   void _callContact(Contact contact) {
-    // Here you would integrate with your phone call functionality
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text('Calling ${contact.name}...'),
@@ -264,6 +274,7 @@ class _ContactsViewState extends State<ContactsView> {
                 return ContactCard(
                   contact: contact,
                   onCall: () => _callContact(contact),
+                  onSms: () => _smsContact(contact),
                   onEdit: () => _editContact(contact, index),
                   onDelete: () => _deleteContact(index),
                 );
