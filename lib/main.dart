@@ -1,8 +1,8 @@
+import 'package:ai_phone/models/contact.dart';
 import 'package:ai_phone/widgets/contact/contacts_view.dart';
 import 'package:ai_phone/widgets/phone_view.dart';
 import 'package:ai_phone/widgets/settings.dart';
 import 'package:ai_phone/widgets/sms_view.dart';
-import 'package:ai_phone/models/contact.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -32,8 +32,6 @@ class _AiPhoneState extends State<AiPhone> {
   }
 
   void _smsContact(Contact contact) {
-    print("************************************************");
-    print("SET CURRENT CONTACT");
     setCurrentContact(contact, isSms: true);
   }
 
@@ -42,7 +40,11 @@ class _AiPhoneState extends State<AiPhone> {
   }
 
   // Set the current contact and switch to appropriate view
-  void setCurrentContact(Contact contact, {bool isCall = false, bool isSms = false}) {
+  void setCurrentContact(
+    Contact contact, {
+    bool isCall = false,
+    bool isSms = false,
+  }) {
     setState(() {
       _currentContact = contact;
 
@@ -91,7 +93,10 @@ class _AiPhoneState extends State<AiPhone> {
             {"role": "system", "content": "give short answers"},
           ];
         }
-        _contactConversations[_currentContact!.id]!.add({"role": role, "content": content});
+        _contactConversations[_currentContact!.id]!.add({
+          "role": role,
+          "content": content,
+        });
       } else {
         // Add to general conversation history
         conversationHistory.add({"role": role, "content": content});
@@ -109,7 +114,10 @@ class _AiPhoneState extends State<AiPhone> {
         ];
       } else {
         conversationHistory.clear();
-        conversationHistory.add({"role": "system", "content": "give short answers"});
+        conversationHistory.add({
+          "role": "system",
+          "content": "give short answers",
+        });
       }
     });
   }
@@ -144,48 +152,60 @@ class _AiPhoneState extends State<AiPhone> {
 
     return MaterialApp(
       home: Scaffold(
-        appBar: _currentContact != null ? AppBar(
-          title: Row(
-            children: [
-              CircleAvatar(
-                backgroundColor: Colors.blue,
-                radius: 16,
-                child: Text(
-                  _currentContact!.initials,
-                  style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
-                ),
-              ),
-              SizedBox(width: 8),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
+        appBar: _currentContact != null
+            ? AppBar(
+                title: Row(
                   children: [
-                    Text(
-                      _currentContact!.name,
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                    CircleAvatar(
+                      backgroundColor: Colors.blue,
+                      radius: 16,
+                      child: Text(
+                        _currentContact!.initials,
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ),
-                    Text(
-                      _currentContact!.phoneNumber,
-                      style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                    SizedBox(width: 8),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            _currentContact!.name,
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          Text(
+                            _currentContact!.phoneNumber,
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.grey[600],
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ],
                 ),
-              ),
-            ],
-          ),
-          actions: [
-            IconButton(
-              icon: Icon(Icons.clear),
-              onPressed: () {
-                setState(() {
-                  _currentContact = null;
-                });
-              },
-              tooltip: 'Clear current contact',
-            ),
-          ],
-        ) : null,
+                actions: [
+                  IconButton(
+                    icon: Icon(Icons.clear),
+                    onPressed: () {
+                      setState(() {
+                        _currentContact = null;
+                      });
+                    },
+                    tooltip: 'Clear current contact',
+                  ),
+                ],
+              )
+            : null,
         body: widgetOptions[_selectedIndex],
         bottomNavigationBar: BottomNavigationBar(
           type: BottomNavigationBarType.fixed,

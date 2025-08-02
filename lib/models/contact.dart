@@ -52,8 +52,10 @@ class Contact {
       id: json['id'] ?? '',
       name: json['name'] ?? '',
       phoneNumber: json['phoneNumber'] ?? '',
-      description: json['description'] ?? json['character'] ?? '', // Support both old and new field names
-      personality: json['personality'] ?? '', // Added personality parsing
+      description: json['description'] ?? json['character'] ?? '',
+      // Support both old and new field names
+      personality: json['personality'] ?? '',
+      // Added personality parsing
       scenario: json['scenario'] ?? '',
       firstMessage: json['first_mes'] ?? '',
       messageExample: json['mes_example'] ?? '',

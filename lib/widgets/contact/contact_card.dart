@@ -64,11 +64,11 @@ class ContactCard extends StatelessWidget {
                     .take(3)
                     .map(
                       (tag) => Chip(
-                    label: Text(tag, style: TextStyle(fontSize: 10)),
-                    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                    visualDensity: VisualDensity.compact,
-                  ),
-                )
+                        label: Text(tag, style: TextStyle(fontSize: 10)),
+                        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        visualDensity: VisualDensity.compact,
+                      ),
+                    )
                     .toList(),
               ),
             ],

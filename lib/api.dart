@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer' as developer;
 
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -42,7 +43,8 @@ Future<dynamic> sendTtsGenerateRequest(String messageContent) async {
     if (voice.trim().isNotEmpty) 'voice': voice,
   };
   final headers = {
-    'Authorization': 'Bearer ${ttsApiKey?.trim().isNotEmpty == true ? ttsApiKey : 'your_api_key_here'}',
+    'Authorization':
+        'Bearer ${ttsApiKey?.trim().isNotEmpty == true ? ttsApiKey : 'your_api_key_here'}',
     'Content-Type': 'application/json',
   };
 
@@ -57,11 +59,13 @@ Future<dynamic> sendTtsGenerateRequest(String messageContent) async {
       // Convert the response body bytes to Uint8List
       return response.bodyBytes;
     } else {
-      print('Error: TTS request failed with status ${response.statusCode}');
-      print('Response body: ${response.body}');
+      developer.log(
+        'Error: TTS request failed with status ${response.statusCode}',
+      );
+      developer.log('Response body: ${response.body}');
 
-      print("request was $body");
-      print("header was $headers");
+      developer.log("request was $body");
+      developer.log("header was $headers");
 
       return null;
     }

@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer' as developer;
 
 import 'package:flutter/material.dart';
 
@@ -17,11 +18,11 @@ class CharacterCardMetadataDialog extends StatefulWidget {
   });
 
   @override
-  _CharacterCardMetadataDialogState createState() =>
-      _CharacterCardMetadataDialogState();
+  CharacterCardMetadataDialogState createState() =>
+      CharacterCardMetadataDialogState();
 }
 
-class _CharacterCardMetadataDialogState
+class CharacterCardMetadataDialogState
     extends State<CharacterCardMetadataDialog> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
@@ -82,7 +83,7 @@ class _CharacterCardMetadataDialogState
           _tagsController.text = tags.join(', ');
         }
       } catch (e) {
-        print("ERROR: $e");
+        developer.log("ERROR: $e");
       }
     }
 
@@ -146,7 +147,7 @@ class _CharacterCardMetadataDialogState
   Widget build(BuildContext context) {
     return AlertDialog(
       title: Text('Import Character Card'),
-      content: Container(
+      content: SizedBox(
         width: double.maxFinite,
         child: SingleChildScrollView(
           child: Column(
@@ -164,7 +165,7 @@ class _CharacterCardMetadataDialogState
                   style: TextStyle(fontSize: 14),
                 ),
                 children: [
-                  Container(
+                  SizedBox(
                     height: 150,
                     child: ListView.builder(
                       itemCount: widget.metadata.length,

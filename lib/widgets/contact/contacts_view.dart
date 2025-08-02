@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer' as developer;
 import 'dart:io';
 import 'dart:typed_data';
 
@@ -16,11 +17,7 @@ class ContactsView extends StatefulWidget {
   final Function(Contact)? onContactCall;
   final Function(Contact)? onContactSms;
 
-  const ContactsView({
-    super.key,
-    this.onContactCall,
-    this.onContactSms,
-  });
+  const ContactsView({super.key, this.onContactCall, this.onContactSms});
 
   @override
   State<ContactsView> createState() => _ContactsViewState();
@@ -82,6 +79,8 @@ class _ContactsViewState extends State<ContactsView> {
         final file = File(result.files.single.path!);
         final bytes = await file.readAsBytes();
 
+        if (!mounted) return;
+
         // Show loading dialog
         showDialog(
           context: context,
@@ -98,6 +97,8 @@ class _ContactsViewState extends State<ContactsView> {
         );
 
         final metadata = await _extractPngMetadata(bytes);
+
+        if (!mounted) return;
         Navigator.pop(context); // Close loading dialog
 
         if (metadata.isNotEmpty) {
@@ -107,6 +108,7 @@ class _ContactsViewState extends State<ContactsView> {
         }
       }
     } catch (e) {
+      if (!mounted) return;
       Navigator.of(context).pop(); // Close loading dialog if open
       _showErrorDialog('Error reading file: $e');
     }
@@ -125,7 +127,7 @@ class _ContactsViewState extends State<ContactsView> {
         }
       }
     } catch (e) {
-      print('Error decoding PNG: $e');
+      developer.log('Error decoding PNG: $e');
     }
 
     return metadata;
@@ -277,8 +279,8 @@ class _ContactsViewState extends State<ContactsView> {
             ),
       floatingActionButton: FloatingActionButton(
         onPressed: _addContact,
-        child: Icon(Icons.add),
         tooltip: 'Add Contact',
+        child: Icon(Icons.add),
       ),
     );
   }

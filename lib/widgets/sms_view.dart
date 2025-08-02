@@ -1,3 +1,5 @@
+import 'dart:developer' as developer;
+
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -69,7 +71,7 @@ class SMSViewState extends State<SMSView> with TickerProviderStateMixin {
               borderRadius: BorderRadius.circular(20),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
+                  color: Colors.black.withValues(alpha: 0.05),
                   blurRadius: 4,
                   offset: const Offset(0, 2),
                 ),
@@ -116,7 +118,7 @@ class SMSViewState extends State<SMSView> with TickerProviderStateMixin {
                 borderRadius: BorderRadius.circular(20),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
+                    color: Colors.black.withValues(alpha: 0.05),
                     blurRadius: 4,
                     offset: const Offset(0, 2),
                   ),
@@ -302,8 +304,8 @@ class SMSViewState extends State<SMSView> with TickerProviderStateMixin {
 
         String messageContent = response['choices'][0]['message']['content'];
         final prefs = await SharedPreferences.getInstance();
-        bool? debug_mode = prefs.getBool('debug_mode');
-        if (!debug_mode!) {
+        bool? debugMode = prefs.getBool('debug_mode') ?? false;
+        if (!debugMode) {
           messageContent = messageContent.replaceAll(
             RegExp(r'<think>.*?</think>', dotAll: true),
             '',
@@ -318,7 +320,7 @@ class SMSViewState extends State<SMSView> with TickerProviderStateMixin {
         setState(() {
           _isTyping = false;
         });
-        print('Error sending message: $error');
+        developer.log('Error sending message: $error');
       }
     }
   }

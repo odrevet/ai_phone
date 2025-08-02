@@ -9,10 +9,10 @@ class ContactDialog extends StatefulWidget {
   const ContactDialog({super.key, this.contact, required this.onSave});
 
   @override
-  _ContactDialogState createState() => _ContactDialogState();
+  ContactDialogState createState() => ContactDialogState();
 }
 
-class _ContactDialogState extends State<ContactDialog>
+class ContactDialogState extends State<ContactDialog>
     with SingleTickerProviderStateMixin {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
@@ -108,7 +108,7 @@ class _ContactDialogState extends State<ContactDialog>
   Widget build(BuildContext context) {
     return AlertDialog(
       title: Text(widget.contact == null ? 'Add Contact' : 'Edit Contact'),
-      content: Container(
+      content: SizedBox(
         width: double.maxFinite,
         height: MediaQuery.of(context).size.height * 0.7,
         child: Column(

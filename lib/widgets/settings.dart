@@ -58,6 +58,7 @@ class SettingsState extends State<Settings> {
     await prefs.setBool('debug_mode', _debugMode);
     await prefs.setBool('disable_thinking', _disableThinking);
     await prefs.setBool('automatic_listen', _automaticListen);
+    if (!mounted) return;
     ScaffoldMessenger.of(
       context,
     ).showSnackBar(SnackBar(content: Text('Settings saved')));
