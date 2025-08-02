@@ -16,7 +16,7 @@ dependencies:
   cupertino_icons: ^1.0.6
   http: ^1.2.2
   speech_to_text: 7.2.0
-  audioplayers: ^6.1.0
+  audioplayers: ^6.5.0
   flutter_chat_bubble: ^2.0.2
   shared_preferences: ^2.3.2
   file_picker: ^10.2.1
