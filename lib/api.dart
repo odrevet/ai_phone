@@ -12,11 +12,8 @@ Future<Map<String, dynamic>> sendChatCompletion(
 
   // Construct the full URL for the chat completions endpoint
   final url = Uri.parse('$apiAddress/v1/chat/completions');
-
   final headers = {'Content-Type': 'application/json'};
-
   final body = jsonEncode({"messages": conversationHistory, "mode": "chat"});
-
   final response = await http.post(url, headers: headers, body: body);
 
   return jsonDecode(utf8.decode(response.bodyBytes));

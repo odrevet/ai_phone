@@ -12,15 +12,13 @@ import '../api.dart';
 import '../models/contact.dart';
 
 class PhoneView extends StatefulWidget {
-  final List<Map<String, String>> conversationHistory;
-  final Function(String, String) addConversation;
+  final Function(String, String) addMessageToConversation;
   final Contact? currentContact;
   final VoidCallback? clearConversation;
 
   const PhoneView({
     super.key,
-    required this.conversationHistory,
-    required this.addConversation,
+    required this.addMessageToConversation,
     this.currentContact,
     this.clearConversation,
   });
@@ -262,10 +260,13 @@ class _PhoneViewState extends State<PhoneView> {
     });
 
     if (result.finalResult) {
-      await widget.addConversation("user", result.recognizedWords);
+      await widget.addMessageToConversation("user", result.recognizedWords);
 
       try {
-        final response = await sendChatCompletion(widget.conversationHistory);
+        final response = await sendChatCompletion(
+            widget.currentContact!.conversation.messagesAsMap
+        );
+
         String messageContent = response['choices'][0]['message']['content'];
 
         // Check debug mode for think tag removal
@@ -280,7 +281,7 @@ class _PhoneViewState extends State<PhoneView> {
         messageContent = messageContent.replaceAll('/no_think', '');
         messageContent = messageContent.trim();
 
-        await widget.addConversation("assistant", messageContent);
+        await widget.addMessageToConversation("assistant", messageContent);
 
         setState(() {
           lastWords += messageContent;

@@ -6,6 +6,8 @@ import 'package:ai_phone/widgets/sms_view.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'models/message.dart';
+
 void main() => runApp(const AiPhone());
 
 class AiPhone extends StatefulWidget {
@@ -16,15 +18,8 @@ class AiPhone extends StatefulWidget {
 }
 
 class _AiPhoneState extends State<AiPhone> {
-  final List<Map<String, String>> conversationHistory = [
-    {"role": "system", "content": "give short answers"},
-  ];
-
-  // Current selected contact and contact-specific conversation histories
   Contact? _currentContact;
-  final Map<String, List<Map<String, String>>> _contactConversations = {};
-
-  int _selectedIndex = 0;
+  int _selectedIndex = 0; // menu tab index
 
   @override
   void initState() {
@@ -48,19 +43,6 @@ class _AiPhoneState extends State<AiPhone> {
     setState(() {
       _currentContact = contact;
 
-      // Initialize conversation history for this contact if it doesn't exist
-      if (!_contactConversations.containsKey(contact.id)) {
-        _contactConversations[contact.id] = [
-          {"role": "system", "content": "give short answers"},
-          if (contact.description.isNotEmpty)
-            {"role": "assistant", "content": contact.description},
-          if (contact.personality.isNotEmpty)
-            {"role": "assistant", "content": contact.personality},
-          if (contact.firstMessage.isNotEmpty)
-            {"role": "assistant", "content": contact.firstMessage},
-        ];
-      }
-
       // Switch to the appropriate view - ensure only one is true
       if (isCall) {
         _selectedIndex = 0; // Phone view
@@ -71,13 +53,7 @@ class _AiPhoneState extends State<AiPhone> {
     });
   }
 
-  // Get conversation history for current contact
-  List<Map<String, String>> getCurrentContactConversation() {
-    if (_currentContact == null) return conversationHistory;
-    return _contactConversations[_currentContact!.id] ?? conversationHistory;
-  }
-
-  void addConversation(String role, String content) async {
+  void addMessageToConversation(String role, String content) async {
     final prefs = await SharedPreferences.getInstance();
     final disableThinking = prefs.getBool('disable_thinking') ?? true;
 
@@ -87,40 +63,14 @@ class _AiPhoneState extends State<AiPhone> {
       }
 
       if (_currentContact != null) {
-        // Add to current contact's conversation
-        if (!_contactConversations.containsKey(_currentContact!.id)) {
-          _contactConversations[_currentContact!.id] = [
-            {"role": "system", "content": "give short answers"},
-          ];
-        }
-        _contactConversations[_currentContact!.id]!.add({
-          "role": role,
-          "content": content,
-        });
-      } else {
-        // Add to general conversation history
-        conversationHistory.add({"role": role, "content": content});
+        _currentContact!.conversation.addMessage(
+          Message(role: role, content: content),
+        );
       }
     });
   }
 
-  void clearConversation() {
-    setState(() {
-      if (_currentContact != null) {
-        _contactConversations[_currentContact!.id] = [
-          {"role": "system", "content": "give short answers"},
-          if (_currentContact!.firstMessage.isNotEmpty)
-            {"role": "assistant", "content": _currentContact!.firstMessage},
-        ];
-      } else {
-        conversationHistory.clear();
-        conversationHistory.add({
-          "role": "system",
-          "content": "give short answers",
-        });
-      }
-    });
-  }
+  void clearConversation() {}
 
   void _onItemTapped(int index) {
     setState(() {
@@ -132,14 +82,12 @@ class _AiPhoneState extends State<AiPhone> {
   Widget build(BuildContext context) {
     List<Widget> widgetOptions = <Widget>[
       PhoneView(
-        conversationHistory: getCurrentContactConversation(),
-        addConversation: addConversation,
+        addMessageToConversation: addMessageToConversation,
         currentContact: _currentContact,
         clearConversation: clearConversation,
       ),
       SMSView(
-        conversationHistory: getCurrentContactConversation(),
-        addConversation: addConversation,
+        //addMessageToConversation: addMessageToConversation,
         currentContact: _currentContact,
         clearConversation: clearConversation,
       ),

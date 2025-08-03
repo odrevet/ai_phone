@@ -7,15 +7,11 @@ import '../api.dart';
 import '../models/contact.dart';
 
 class SMSView extends StatefulWidget {
-  final List<Map<String, String>> conversationHistory;
-  final Function(String, String) addConversation;
   final Contact? currentContact;
   final VoidCallback? clearConversation;
 
   const SMSView({
     super.key,
-    required this.conversationHistory,
-    required this.addConversation,
     this.currentContact,
     this.clearConversation,
   });
@@ -217,8 +213,8 @@ class SMSViewState extends State<SMSView> with TickerProviderStateMixin {
                   onPressed: _isTyping
                       ? null
                       : () async {
-                          await _sendMessage();
-                        },
+                    await _sendMessage();
+                  },
                   icon: Icon(
                     Icons.send,
                     color: _isTyping ? Colors.grey.shade500 : Colors.white,
@@ -243,10 +239,13 @@ class SMSViewState extends State<SMSView> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
+    // Get conversation messages from current contact
+    final conversationHistory = widget.currentContact?.conversation.messagesAsMap ?? [];
+
     return Scaffold(
       backgroundColor: Colors.grey.shade50,
       appBar: AppBar(
-        title: Text('SMS ${widget.currentContact?.name}'),
+        title: Text('SMS ${widget.currentContact?.name ?? 'Unknown'}'),
         backgroundColor: Colors.white,
         foregroundColor: Colors.black87,
         elevation: 0,
@@ -258,23 +257,21 @@ class SMSViewState extends State<SMSView> with TickerProviderStateMixin {
       body: Column(
         children: [
           Expanded(
-            child: widget.conversationHistory.isEmpty && !_isTyping
+            child: conversationHistory.isEmpty && !_isTyping
                 ? _buildEmptyState()
                 : ListView.builder(
-                    controller: _scrollController,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    itemCount:
-                        widget.conversationHistory.length + (_isTyping ? 1 : 0),
-                    itemBuilder: (context, index) {
-                      if (_isTyping &&
-                          index == widget.conversationHistory.length) {
-                        return _buildTypingIndicator();
-                      }
+              controller: _scrollController,
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              itemCount: conversationHistory.length + (_isTyping ? 1 : 0),
+              itemBuilder: (context, index) {
+                if (_isTyping && index == conversationHistory.length) {
+                  return _buildTypingIndicator();
+                }
 
-                      final message = widget.conversationHistory[index];
-                      return _buildMessageBubble(message);
-                    },
-                  ),
+                final message = conversationHistory[index];
+                return _buildMessageBubble(message);
+              },
+            ),
           ),
           _buildInputArea(),
         ],
@@ -284,8 +281,9 @@ class SMSViewState extends State<SMSView> with TickerProviderStateMixin {
 
   Future<void> _sendMessage() async {
     final message = _messageController.text.trim();
-    if (message.isNotEmpty) {
-      await widget.addConversation("user", message);
+    if (message.isNotEmpty && widget.currentContact != null) {
+      // Add user message to contact's conversation
+      widget.currentContact!.conversation.addUserMessage(message);
       _messageController.clear();
 
       setState(() {
@@ -295,7 +293,10 @@ class SMSViewState extends State<SMSView> with TickerProviderStateMixin {
       _scrollToBottom();
 
       try {
-        final response = await sendChatCompletion(widget.conversationHistory);
+        // Use the contact's conversation for API call
+        final response = await sendChatCompletion(
+            widget.currentContact!.conversation.messagesAsMap
+        );
 
         _animationController.stop();
         setState(() {
@@ -313,7 +314,9 @@ class SMSViewState extends State<SMSView> with TickerProviderStateMixin {
         }
         messageContent = messageContent.replaceAll('/no_think', '');
         messageContent = messageContent.trim();
-        await widget.addConversation("assistant", messageContent);
+
+        // Add assistant message to contact's conversation
+        widget.currentContact!.conversation.addAssistantMessage(messageContent);
         _scrollToBottom();
       } catch (error) {
         _animationController.stop();

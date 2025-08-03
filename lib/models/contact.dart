@@ -1,3 +1,5 @@
+import 'package:ai_phone/models/conversation.dart';
+
 class Contact {
   final String id;
   final String name;
@@ -11,14 +13,15 @@ class Contact {
   final String avatar;
   final String chat;
   final List<String> tags;
-  final Map<String, dynamic> data;
+
+  late final Conversation conversation;
 
   Contact({
     required this.id,
     required this.name,
     required this.phoneNumber,
-    required this.description, // Renamed from character
-    this.personality = '', // Added personality with default empty string
+    required this.description,
+    this.personality = '',
     this.scenario = '',
     this.firstMessage = '',
     this.messageExample = '',
@@ -26,16 +29,32 @@ class Contact {
     this.avatar = '',
     this.chat = '',
     this.tags = const [],
-    this.data = const {},
-  });
+  }) {
+    // Initialize conversation with contact-specific messages
+    conversation = Conversation();
+
+    conversation.addSystemMessage("give short answers");
+
+    if (description.isNotEmpty) {
+      conversation.addSystemMessage(description);
+    }
+
+    if (personality.isNotEmpty) {
+      conversation.addSystemMessage(personality);
+    }
+
+    if (firstMessage.isNotEmpty) {
+      conversation.addAssistantMessage(firstMessage);
+    }
+  }
 
   Map<String, dynamic> toJson() {
     return {
       'id': id,
       'name': name,
       'phoneNumber': phoneNumber,
-      'description': description, // Updated field name
-      'personality': personality, // Added personality to JSON
+      'description': description,
+      'personality': personality,
       'scenario': scenario,
       'first_mes': firstMessage,
       'mes_example': messageExample,
@@ -43,7 +62,6 @@ class Contact {
       'avatar': avatar,
       'chat': chat,
       'tags': tags,
-      'data': data,
     };
   }
 
@@ -52,10 +70,8 @@ class Contact {
       id: json['id'] ?? '',
       name: json['name'] ?? '',
       phoneNumber: json['phoneNumber'] ?? '',
-      description: json['description'] ?? json['character'] ?? '',
-      // Support both old and new field names
+      description: json['description'] ?? '',
       personality: json['personality'] ?? '',
-      // Added personality parsing
       scenario: json['scenario'] ?? '',
       firstMessage: json['first_mes'] ?? '',
       messageExample: json['mes_example'] ?? '',
@@ -63,7 +79,6 @@ class Contact {
       avatar: json['avatar'] ?? '',
       chat: json['chat'] ?? '',
       tags: List<String>.from(json['tags'] ?? []),
-      data: Map<String, dynamic>.from(json['data'] ?? {}),
     );
   }
 

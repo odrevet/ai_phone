@@ -97,7 +97,6 @@ class ContactDialogState extends State<ContactDialog>
         avatar: _avatarController.text.trim(),
         chat: _chatController.text.trim(),
         tags: tagsList,
-        data: widget.contact?.data ?? {},
       );
       widget.onSave(contact);
       Navigator.pop(context);

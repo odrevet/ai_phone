@@ -136,7 +136,6 @@ class CharacterCardMetadataDialogState
         avatar: _avatarController.text.trim(),
         chat: _chatController.text.trim(),
         tags: tagsList,
-        data: {},
       );
       widget.onImport(contact);
       Navigator.pop(context);
