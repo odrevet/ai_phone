@@ -33,7 +33,7 @@ class Contact {
     // Initialize conversation with contact-specific messages
     conversation = Conversation();
 
-    conversation.addSystemMessage("give short answers");
+    conversation.addSystemMessage("You are using a phone to communicate. give short answers");
 
     if (description.isNotEmpty) {
       conversation.addSystemMessage(description);
@@ -44,7 +44,7 @@ class Contact {
     }
 
     if (firstMessage.isNotEmpty) {
-      conversation.addAssistantMessage(firstMessage);
+      conversation.addSystemMessage(firstMessage);
     }
   }
 

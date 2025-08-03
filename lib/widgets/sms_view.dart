@@ -239,8 +239,11 @@ class SMSViewState extends State<SMSView> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    // Get conversation messages from current contact
-    final conversationHistory = widget.currentContact?.conversation.messagesAsMap ?? [];
+    // Get conversation messages from current contact, filter only user and assistant messages
+    final allMessages = widget.currentContact?.conversation.messagesAsMap ?? [];
+    final conversationHistory = allMessages
+        .where((message) => message['role'] == 'user' || message['role'] == 'assistant')
+        .toList();
 
     return Scaffold(
       backgroundColor: Colors.grey.shade50,
