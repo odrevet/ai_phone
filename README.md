@@ -78,7 +78,7 @@ Configure your open API or complatible endpoints for:
 - Text-to-speech services
 - Any authentication tokens required
  
-## 📋 Usage
+## Usage
 
 ### Making Voice Calls
 1. Select a contact from the contact list
