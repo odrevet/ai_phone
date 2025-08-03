@@ -37,7 +37,7 @@ A Flutter-based mobile application that simulates a phone interface for interact
     - Custom avatars
     - Message examples
 
-## 🛠️ Technical Stack
+## Technical Stack
 
 - **Framework**: Flutter
 - **Platform**: Android (with built-in speech modules)
@@ -45,7 +45,7 @@ A Flutter-based mobile application that simulates a phone interface for interact
 - **Speech**: Android native speech recognition
 - **TTS**: OpenAI-compatible text-to-speech services
 
-## 📱 Application Structure
+## Application Structure
 
 ### Core Views
 1. **Phone View**: Voice call interface with speech recognition
@@ -57,7 +57,7 @@ A Flutter-based mobile application that simulates a phone interface for interact
 - **Text-to-Speech API**: For voice synthesis
 - **Character Cards**: Support for importing AI character definitions
 
-## 🎭 Character Card Support
+## Character Card Support
 
 The application supports importing AI character cards in the contact list, allowing users to:
 - Load pre-defined AI personalities
