@@ -17,12 +17,18 @@ class PhoneView extends StatefulWidget {
   final Function(String, String) addMessageToConversation;
   final Contact? currentContact;
   final VoidCallback? clearConversation;
+  final SpeechToText speech;
+  final bool hasSpeech;
+  final String currentLocaleId;
 
   const PhoneView({
     super.key,
     required this.addMessageToConversation,
     this.currentContact,
     this.clearConversation,
+    required this.speech,
+    required this.hasSpeech,
+    required this.currentLocaleId,
   });
 
   @override
@@ -33,7 +39,6 @@ class _PhoneViewState extends State<PhoneView> {
   // Debug variable - set to true to show debug controls
   bool debug = false;
 
-  bool _hasSpeech = false;
   final bool _logEvents = false;
   bool _onDevice = false;
   final TextEditingController _pauseForController = TextEditingController(
@@ -48,15 +53,18 @@ class _PhoneViewState extends State<PhoneView> {
   String lastWords = '';
   String lastError = '';
   String lastStatus = '';
-  String _currentLocaleId = '';
-  List<LocaleName> _localeNames = [];
-  final SpeechToText speech = SpeechToText();
 
   Future<void> _loadDebugMode() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
       debug = prefs.getBool('debug_mode') ?? false;
     });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _loadDebugMode();
   }
 
   @override
@@ -72,17 +80,17 @@ class _PhoneViewState extends State<PhoneView> {
               // Debug controls section
               if (debug) ...[
                 SpeechControlWidget(
-                  _hasSpeech,
-                  speech.isListening,
+                  widget.hasSpeech,
+                  widget.speech.isListening,
                   startListening,
                   stopListening,
                   cancelListening,
                 ),
                 const SizedBox(height: 16),
                 SessionOptionsWidget(
-                  _currentLocaleId,
-                  _switchLang,
-                  _localeNames,
+                  widget.currentLocaleId,
+                      (String? val) {}, // Language switching handled in main settings
+                  [], // Empty list since handled in settings
                   _logEvents,
                   _pauseForController,
                   _listenForController,
@@ -118,14 +126,14 @@ class _PhoneViewState extends State<PhoneView> {
                     height: 160,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: speech.isListening ? Colors.green : Colors.red,
+                      color: widget.speech.isListening ? Colors.green : Colors.red,
                       boxShadow: [
                         BoxShadow(
                           blurRadius: 20,
                           spreadRadius: level * 2,
                           color:
-                              (speech.isListening ? Colors.green : Colors.red)
-                                  .withValues(alpha: 0.3),
+                          (widget.speech.isListening ? Colors.green : Colors.red)
+                              .withValues(alpha: 0.3),
                           offset: const Offset(0, 4),
                         ),
                       ],
@@ -134,7 +142,7 @@ class _PhoneViewState extends State<PhoneView> {
                       color: Colors.transparent,
                       child: InkWell(
                         borderRadius: BorderRadius.circular(80),
-                        onTap: !_hasSpeech || speech.isListening
+                        onTap: !widget.hasSpeech || widget.speech.isListening
                             ? null
                             : startListening,
                         child: const Icon(
@@ -174,41 +182,6 @@ class _PhoneViewState extends State<PhoneView> {
     );
   }
 
-  Future<void> initSpeechState() async {
-    try {
-      var hasSpeech = await speech.initialize(
-        onError: errorListener,
-        onStatus: statusListener,
-        debugLogging: _logEvents,
-      );
-      if (hasSpeech) {
-        // Get the list of languages installed on the supporting platform so they
-        // can be displayed in the UI for selection by the user.
-        _localeNames = await speech.locales();
-
-        var systemLocale = await speech.systemLocale();
-        _currentLocaleId = systemLocale?.localeId ?? '';
-      }
-      if (!mounted) return;
-
-      setState(() {
-        _hasSpeech = hasSpeech;
-      });
-    } catch (e) {
-      setState(() {
-        lastError = 'Speech recognition failed: ${e.toString()}';
-        _hasSpeech = false;
-      });
-    }
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    initSpeechState();
-    _loadDebugMode();
-  }
-
   // This is called each time the users wants to start a new speech
   void startListening() {
     lastWords = '';
@@ -223,11 +196,11 @@ class _PhoneViewState extends State<PhoneView> {
       autoPunctuation: true,
       enableHapticFeedback: true,
     );
-    speech.listen(
+    widget.speech.listen(
       onResult: resultListener,
       listenFor: Duration(seconds: listenFor ?? 30),
       pauseFor: Duration(seconds: pauseFor ?? 3),
-      localeId: _currentLocaleId,
+      localeId: widget.currentLocaleId,
       onSoundLevelChange: soundLevelListener,
       listenOptions: options,
     );
@@ -235,14 +208,14 @@ class _PhoneViewState extends State<PhoneView> {
   }
 
   void stopListening() {
-    speech.stop();
+    widget.speech.stop();
     setState(() {
       level = 0.0;
     });
   }
 
   void cancelListening() {
-    speech.cancel();
+    widget.speech.cancel();
     setState(() {
       level = 0.0;
     });
@@ -318,10 +291,10 @@ class _PhoneViewState extends State<PhoneView> {
             // Wait for audio to complete, then start listening again if enabled
             if (automaticListen) {
               player.onPlayerComplete.listen((_) {
-                if (mounted && _hasSpeech) {
+                if (mounted && widget.hasSpeech) {
                   // Small delay to ensure smooth transition
                   Future.delayed(const Duration(milliseconds: 500), () {
-                    if (mounted && !speech.isListening) {
+                    if (mounted && !widget.speech.isListening) {
                       startListening();
                     }
                   });
@@ -332,10 +305,10 @@ class _PhoneViewState extends State<PhoneView> {
             // If no audio data, start listening immediately if enabled
             if (automaticListen &&
                 mounted &&
-                _hasSpeech &&
-                !speech.isListening) {
+                widget.hasSpeech &&
+                !widget.speech.isListening) {
               Future.delayed(const Duration(milliseconds: 500), () {
-                if (mounted && !speech.isListening) {
+                if (mounted && !widget.speech.isListening) {
                   startListening();
                 }
               });
@@ -347,9 +320,9 @@ class _PhoneViewState extends State<PhoneView> {
               context,
             ).showSnackBar(SnackBar(content: Text('TTS error: $error')));
             // Start listening even if TTS fails, but only if enabled
-            if (automaticListen && _hasSpeech && !speech.isListening) {
+            if (automaticListen && widget.hasSpeech && !widget.speech.isListening) {
               Future.delayed(const Duration(milliseconds: 500), () {
-                if (mounted && !speech.isListening) {
+                if (mounted && !widget.speech.isListening) {
                   startListening();
                 }
               });
@@ -383,12 +356,6 @@ class _PhoneViewState extends State<PhoneView> {
   void statusListener(String status) {
     setState(() {
       lastStatus = status;
-    });
-  }
-
-  void _switchLang(String? selectedVal) {
-    setState(() {
-      _currentLocaleId = selectedVal!;
     });
   }
 

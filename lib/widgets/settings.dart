@@ -1,8 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:speech_to_text/speech_to_text.dart';
 
 class Settings extends StatefulWidget {
-  const Settings({super.key});
+  final List<LocaleName> localeNames;
+  final String currentLocaleId;
+  final Function(String) onLocaleChanged;
+
+  const Settings({
+    super.key,
+    required this.localeNames,
+    required this.currentLocaleId,
+    required this.onLocaleChanged,
+  });
 
   @override
   SettingsState createState() => SettingsState();
@@ -12,10 +22,10 @@ class SettingsState extends State<Settings> {
   final TextEditingController _openAIController = TextEditingController();
   final TextEditingController _ttsController = TextEditingController();
   final TextEditingController _generationModelController =
-      TextEditingController();
+  TextEditingController();
   final TextEditingController _voiceController = TextEditingController();
   final TextEditingController _apiKeyGenerationController =
-      TextEditingController();
+  TextEditingController();
   final TextEditingController _apiKeyTtsController = TextEditingController();
   bool _debugMode = false;
   bool _disableThinking = true; // Default to true (disabled)
@@ -74,6 +84,49 @@ class SettingsState extends State<Settings> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // Speech Recognition Section
+              Text(
+                'Speech Recognition',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              SizedBox(height: 12),
+              Text(
+                'Language',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
+              SizedBox(height: 8),
+              Container(
+                width: double.infinity,
+                padding: EdgeInsets.symmetric(horizontal: 12),
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.grey),
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                child: DropdownButton<String>(
+                  isExpanded: true,
+                  underline: SizedBox.shrink(),
+                  value: widget.currentLocaleId.isNotEmpty &&
+                      widget.localeNames.any((l) => l.localeId == widget.currentLocaleId)
+                      ? widget.currentLocaleId
+                      : null,
+                  hint: Text('Select speech recognition language'),
+                  onChanged: (String? selectedVal) {
+                    if (selectedVal != null) {
+                      widget.onLocaleChanged(selectedVal);
+                    }
+                  },
+                  items: widget.localeNames
+                      .map(
+                        (localeName) => DropdownMenuItem(
+                      value: localeName.localeId,
+                      child: Text(localeName.name),
+                    ),
+                  )
+                      .toList(),
+                ),
+              ),
+              SizedBox(height: 30),
+
               // Generation Section
               Text(
                 'Generation',
@@ -112,7 +165,7 @@ class SettingsState extends State<Settings> {
                 controller: _generationModelController,
                 decoration: InputDecoration(
                   hintText:
-                      'Enter generation model (e.g., gpt-4, claude-3-sonnet)',
+                  'Enter generation model (e.g., gpt-4, claude-3-sonnet)',
                 ),
               ),
               SizedBox(height: 30),
@@ -153,7 +206,7 @@ class SettingsState extends State<Settings> {
                 controller: _voiceController,
                 decoration: InputDecoration(
                   hintText:
-                      'Enter speech model (e.g., whisper-1, speech-to-text-v1)',
+                  'Enter speech model (e.g., whisper-1, speech-to-text-v1)',
                 ),
               ),
               SizedBox(height: 16),
