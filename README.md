@@ -1,17 +1,12 @@
-# ai_phone
+# AI Phone - Flutter Voice & Text Chat Application
 
-**AI Character Roleplay**: Interact with various AI personalities
+A Flutter-based mobile application that simulates a phone interface for interacting with AI characters through voice calls and text messages.
 
 ## Getting Started
 
 Setup local AI 
 
 https://github.com/odrevet/odrevet/wiki/Local-AI
-
-
-# AI Phone - Flutter Voice & Text Chat Application
-
-A Flutter-based mobile application that simulates a phone interface for interacting with AI characters through voice calls and text messages.
 
 ## Features
 
@@ -24,10 +19,9 @@ A Flutter-based mobile application that simulates a phone interface for interact
 ### SMS Messaging
 - **Chat Interface**: Clean, modern SMS-style messaging interface
 - **Typed Conversations**: Text-based interactions with AI characters
-- **Message History**: Persistent conversation history for each contact
 - **Real-time Responses**: Instant AI responses through API calls
 
-### ontact Management
+### Contact Management
 - **AI Character Cards**: Import and manage AI character cards
 - **Contact List**: Organized list of available AI characters
 - **Character Profiles**: Detailed character information including:
@@ -39,7 +33,6 @@ A Flutter-based mobile application that simulates a phone interface for interact
 
 ## Technical Stack
 
-- **Framework**: Flutter
 - **Platform**: Android (with built-in speech modules)
 - **AI Integration**: OpenAI-compatible API endpoints
 - **Speech**: Android native speech recognition
