@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../api.dart';
 import '../models/contact.dart';
+import 'contact/contact_avatar.dart';
 
 class SMSView extends StatefulWidget {
   final Contact? currentContact;
@@ -248,7 +249,43 @@ class SMSViewState extends State<SMSView> with TickerProviderStateMixin {
     return Scaffold(
       backgroundColor: Colors.grey.shade50,
       appBar: AppBar(
-        title: Text('SMS ${widget.currentContact?.name ?? 'Unknown'}'),
+        title: Row(
+          children: [
+            ContactAvatar(
+              contact: widget.currentContact!,
+              radius: 20,
+            ),
+            const SizedBox(width: 12),
+            // Contact info section
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    widget.currentContact?.name ?? 'Unknown',
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  if (widget.currentContact?.phoneNumber != null &&
+                      widget.currentContact!.phoneNumber.isNotEmpty)
+                    Text(
+                      widget.currentContact!.phoneNumber,
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.grey.shade600,
+                        fontWeight: FontWeight.normal,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                ],
+              ),
+            ),
+          ],
+        ),
         backgroundColor: Colors.white,
         foregroundColor: Colors.black87,
         elevation: 0,
