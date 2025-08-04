@@ -43,7 +43,7 @@ class ContactDialogState extends State<ContactDialog>
           widget.contact!.description; // Updated field
       _personalityController.text =
           widget.contact!.personality; // Added personality
-      _voiceController.text = widget.contact!.voice; // Added voice
+      _voiceController.text = widget.contact!.voice ?? ''; // Added voice
       _scenarioController.text = widget.contact!.scenario;
       _firstMessageController.text = widget.contact!.firstMessage;
       _messageExampleController.text = widget.contact!.messageExample;

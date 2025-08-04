@@ -12,7 +12,7 @@ class Contact {
   final String creatorComment;
   final String avatar;
   final String chat;
-  final String voice;
+  final String? voice;
   final List<String> tags;
 
   late final Conversation conversation;

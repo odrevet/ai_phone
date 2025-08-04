@@ -308,7 +308,8 @@ class _PhoneViewState extends State<PhoneView> {
         final automaticListen = prefs.getBool('automatic_listen') ?? true;
 
         try {
-          final data = await sendTtsGenerateRequest(messageContent, widget.currentContact!.voice);
+          final String? voice = widget.currentContact!.voice ?? null;
+          final data = await sendTtsGenerateRequest(messageContent, voice);
           if (data != null) {
             final player = AudioPlayer();
             await player.play(BytesSource(data));
