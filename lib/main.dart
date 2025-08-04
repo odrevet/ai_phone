@@ -1,4 +1,5 @@
 import 'package:ai_phone/models/contact.dart';
+import 'package:ai_phone/widgets/contact/contact_avatar.dart';
 import 'package:ai_phone/widgets/contact/contacts_view.dart';
 import 'package:ai_phone/widgets/phone_view.dart';
 import 'package:ai_phone/widgets/settings.dart';
@@ -104,17 +105,9 @@ class _AiPhoneState extends State<AiPhone> {
             ? AppBar(
                 title: Row(
                   children: [
-                    CircleAvatar(
-                      backgroundColor: Colors.blue,
-                      radius: 16,
-                      child: Text(
-                        _currentContact!.initials,
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
+                    ContactAvatar(
+                      contact: _currentContact!,
+                      radius: 20,
                     ),
                     SizedBox(width: 8),
                     Expanded(

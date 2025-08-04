@@ -248,52 +248,6 @@ class SMSViewState extends State<SMSView> with TickerProviderStateMixin {
 
     return Scaffold(
       backgroundColor: Colors.grey.shade50,
-      appBar: AppBar(
-        title: Row(
-          children: [
-            ContactAvatar(
-              contact: widget.currentContact!,
-              radius: 20,
-            ),
-            const SizedBox(width: 12),
-            // Contact info section
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    widget.currentContact?.name ?? 'Unknown',
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w600,
-                    ),
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  if (widget.currentContact?.phoneNumber != null &&
-                      widget.currentContact!.phoneNumber.isNotEmpty)
-                    Text(
-                      widget.currentContact!.phoneNumber,
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.grey.shade600,
-                        fontWeight: FontWeight.normal,
-                      ),
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                ],
-              ),
-            ),
-          ],
-        ),
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.black87,
-        elevation: 0,
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(1),
-          child: Container(height: 1, color: Colors.grey.shade200),
-        ),
-      ),
       body: Column(
         children: [
           Expanded(

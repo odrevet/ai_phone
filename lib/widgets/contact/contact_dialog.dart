@@ -18,8 +18,9 @@ class ContactDialogState extends State<ContactDialog>
   final _nameController = TextEditingController();
   final _phoneController = TextEditingController();
   final _descriptionController =
-      TextEditingController(); // Updated from character
+  TextEditingController(); // Updated from character
   final _personalityController = TextEditingController(); // Added personality
+  final _voiceController = TextEditingController(); // Added voice
   final _scenarioController = TextEditingController();
   final _firstMessageController = TextEditingController();
   final _messageExampleController = TextEditingController();
@@ -42,6 +43,7 @@ class ContactDialogState extends State<ContactDialog>
           widget.contact!.description; // Updated field
       _personalityController.text =
           widget.contact!.personality; // Added personality
+      _voiceController.text = widget.contact!.voice; // Added voice
       _scenarioController.text = widget.contact!.scenario;
       _firstMessageController.text = widget.contact!.firstMessage;
       _messageExampleController.text = widget.contact!.messageExample;
@@ -59,6 +61,7 @@ class ContactDialogState extends State<ContactDialog>
     _phoneController.dispose();
     _descriptionController.dispose(); // Updated from character
     _personalityController.dispose(); // Added personality disposal
+    _voiceController.dispose(); // Added voice disposal
     _scenarioController.dispose();
     _firstMessageController.dispose();
     _messageExampleController.dispose();
@@ -75,14 +78,14 @@ class ContactDialogState extends State<ContactDialog>
       final tagsList = tagsText.isEmpty
           ? <String>[]
           : tagsText
-                .split(',')
-                .map((tag) => tag.trim())
-                .where((tag) => tag.isNotEmpty)
-                .toList();
+          .split(',')
+          .map((tag) => tag.trim())
+          .where((tag) => tag.isNotEmpty)
+          .toList();
 
       final contact = Contact(
         id:
-            widget.contact?.id ??
+        widget.contact?.id ??
             DateTime.now().millisecondsSinceEpoch.toString(),
         name: _nameController.text.trim(),
         phoneNumber: _phoneController.text.trim(),
@@ -90,6 +93,7 @@ class ContactDialogState extends State<ContactDialog>
         // Updated field
         personality: _personalityController.text.trim(),
         // Added personality
+        voice: _voiceController.text.trim(), // Added voice
         scenario: _scenarioController.text.trim(),
         firstMessage: _firstMessageController.text.trim(),
         messageExample: _messageExampleController.text.trim(),
@@ -211,6 +215,16 @@ class ContactDialogState extends State<ContactDialog>
                 prefixIcon: Icon(Icons.local_offer),
                 border: OutlineInputBorder(),
                 hintText: 'Comma-separated tags',
+              ),
+            ),
+            SizedBox(height: 16),
+            TextFormField(
+              controller: _voiceController,
+              decoration: InputDecoration(
+                labelText: 'Voice',
+                prefixIcon: Icon(Icons.record_voice_over),
+                border: OutlineInputBorder(),
+                hintText: 'TTS voice model',
               ),
             ),
           ],

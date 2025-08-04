@@ -12,6 +12,7 @@ class Contact {
   final String creatorComment;
   final String avatar;
   final String chat;
+  final String voice;
   final List<String> tags;
 
   late final Conversation conversation;
@@ -28,12 +29,13 @@ class Contact {
     this.creatorComment = '',
     this.avatar = '',
     this.chat = '',
+    this.voice = '',
     this.tags = const [],
   }) {
     // Initialize conversation with contact-specific messages
     conversation = Conversation();
 
-    conversation.addSystemMessage("You are using a phone to communicate. give short answers");
+    conversation.addSystemMessage("You are using a phone to communicate. give short answers. No ");
 
     if (description.isNotEmpty) {
       conversation.addSystemMessage(description);
@@ -61,6 +63,7 @@ class Contact {
       'creatorcomment': creatorComment,
       'avatar': avatar,
       'chat': chat,
+      'voice': voice,
       'tags': tags,
     };
   }
@@ -78,6 +81,7 @@ class Contact {
       creatorComment: json['creatorcomment'] ?? '',
       avatar: json['avatar'] ?? '',
       chat: json['chat'] ?? '',
+      voice: json['voice'] ?? '',
       tags: List<String>.from(json['tags'] ?? []),
     );
   }
