@@ -7,6 +7,8 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:image/image.dart' as img;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:path/path.dart' as path;
 
 import '../../models/contact.dart';
 import 'character_card_metadata_dialog.dart';
@@ -67,6 +69,33 @@ class _ContactsViewState extends State<ContactsView> {
     );
   }
 
+  Future<String?> _copyImageToAppDirectory(File sourceFile, String contactId) async {
+    try {
+      // Get the app's documents directory
+      final Directory appDocDir = await getApplicationDocumentsDirectory();
+
+      // Create avatars subdirectory if it doesn't exist
+      final Directory avatarsDir = Directory(path.join(appDocDir.path, 'avatars'));
+      if (!await avatarsDir.exists()) {
+        await avatarsDir.create(recursive: true);
+      }
+
+      // Generate a unique filename using contact ID and timestamp
+      final String timestamp = DateTime.now().millisecondsSinceEpoch.toString();
+      final String extension = path.extension(sourceFile.path);
+      final String fileName = '${contactId}_$timestamp$extension';
+      final String destinationPath = path.join(avatarsDir.path, fileName);
+
+      // Copy the file
+      final File destinationFile = await sourceFile.copy(destinationPath);
+
+      return destinationFile.path;
+    } catch (e) {
+      developer.log('Error copying image to app directory: $e');
+      return null;
+    }
+  }
+
   Future<void> _importCharacterCard() async {
     try {
       FilePickerResult? result = await FilePicker.platform.pickFiles(
@@ -102,7 +131,13 @@ class _ContactsViewState extends State<ContactsView> {
         Navigator.pop(context); // Close loading dialog
 
         if (metadata.isNotEmpty) {
-          _showMetadataDialog(metadata, result.files.single.name);
+          // Generate a temporary contact ID for the avatar file
+          final String tempContactId = DateTime.now().millisecondsSinceEpoch.toString();
+
+          // Copy the PNG file to app directory
+          final String? avatarPath = await _copyImageToAppDirectory(file, tempContactId);
+
+          _showMetadataDialog(metadata, result.files.single.name, avatarPath);
         } else {
           _showErrorDialog('No metadata found in the PNG file.');
         }
@@ -133,12 +168,13 @@ class _ContactsViewState extends State<ContactsView> {
     return metadata;
   }
 
-  void _showMetadataDialog(Map<String, String> metadata, String filename) {
+  void _showMetadataDialog(Map<String, String> metadata, String filename, String? avatarPath) {
     showDialog(
       context: context,
       builder: (context) => CharacterCardMetadataDialog(
         metadata: metadata,
         filename: filename,
+        avatarPath: avatarPath, // Pass the avatar path to the dialog
         onImport: (contact) {
           setState(() {
             contacts.add(contact);
@@ -181,12 +217,14 @@ class _ContactsViewState extends State<ContactsView> {
   }
 
   void _deleteContact(int index) {
+    final contact = contacts[index];
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         title: Text('Delete Contact'),
         content: Text(
-          'Are you sure you want to delete ${contacts[index].name}?',
+          'Are you sure you want to delete ${contact.name}?',
         ),
         actions: [
           TextButton(
@@ -194,7 +232,20 @@ class _ContactsViewState extends State<ContactsView> {
             child: Text('Cancel'),
           ),
           TextButton(
-            onPressed: () {
+            onPressed: () async {
+              // Delete the avatar file if it exists and is in app directory
+              if (contact.avatar.isNotEmpty &&
+                  (contact.avatar.contains('/avatars/') || contact.avatar.startsWith('/'))) {
+                try {
+                  final file = File(contact.avatar);
+                  if (await file.exists()) {
+                    await file.delete();
+                  }
+                } catch (e) {
+                  developer.log('Error deleting avatar file: $e');
+                }
+              }
+
               setState(() {
                 contacts.removeAt(index);
               });
@@ -257,26 +308,26 @@ class _ContactsViewState extends State<ContactsView> {
       body: contacts.isEmpty
           ? _buildEmptyState()
           : ListView.builder(
-              itemCount: contacts.length,
-              itemBuilder: (context, index) {
-                final contact = contacts[index];
-                return ContactCard(
-                  contact: contact,
-                  onCall: () {
-                    if (widget.onContactCall != null) {
-                      widget.onContactCall!(contact);
-                    }
-                  },
-                  onSms: () {
-                    if (widget.onContactSms != null) {
-                      widget.onContactSms!(contact);
-                    }
-                  },
-                  onEdit: () => _editContact(contact, index),
-                  onDelete: () => _deleteContact(index),
-                );
-              },
-            ),
+        itemCount: contacts.length,
+        itemBuilder: (context, index) {
+          final contact = contacts[index];
+          return ContactCard(
+            contact: contact,
+            onCall: () {
+              if (widget.onContactCall != null) {
+                widget.onContactCall!(contact);
+              }
+            },
+            onSms: () {
+              if (widget.onContactSms != null) {
+                widget.onContactSms!(contact);
+              }
+            },
+            onEdit: () => _editContact(contact, index),
+            onDelete: () => _deleteContact(index),
+          );
+        },
+      ),
       floatingActionButton: FloatingActionButton(
         onPressed: _addContact,
         tooltip: 'Add Contact',

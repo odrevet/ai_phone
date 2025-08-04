@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 
 import '../../models/contact.dart';
@@ -18,57 +19,92 @@ class ContactCard extends StatelessWidget {
     required this.onDelete,
   });
 
+  Widget _buildAvatar() {
+    if (contact.avatar.isNotEmpty) {
+      // Check if it's a file path
+      if (contact.avatar.startsWith('/') || contact.avatar.startsWith('file://')) {
+        return CircleAvatar(
+          backgroundImage: FileImage(File(contact.avatar)),
+          onBackgroundImageError: (exception, stackTrace) {
+            // If image fails to load, fall back to initials
+          },
+          child: contact.avatar.isEmpty ? Text(
+            contact.initials,
+            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          ) : null,
+        );
+      }
+      // Check if it's an asset path
+      else if (contact.avatar.startsWith('assets/')) {
+        return CircleAvatar(
+          backgroundImage: AssetImage(contact.avatar),
+          onBackgroundImageError: (exception, stackTrace) {
+            // If image fails to load, fall back to initials
+          },
+          child: contact.avatar.isEmpty ? Text(
+            contact.initials,
+            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          ) : null,
+        );
+      }
+    }
+
+    // Default: show initials with blue background
+    return CircleAvatar(
+      backgroundColor: Colors.blue,
+      child: Text(
+        contact.initials,
+        style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Card(
-      margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: ListTile(
-        leading: CircleAvatar(
-          backgroundColor: Colors.blue,
-          child: Text(
-            contact.initials,
-            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-          ),
-        ),
+        leading: _buildAvatar(),
         title: Text(
           contact.name,
-          style: TextStyle(fontWeight: FontWeight.w600),
+          style: const TextStyle(fontWeight: FontWeight.w600),
         ),
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(contact.phoneNumber),
-            SizedBox(height: 2),
-            Container(
-              padding: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-              decoration: BoxDecoration(
-                color: Colors.grey[200],
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Text(
-                contact.description,
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Colors.grey[700],
-                  fontWeight: FontWeight.w500,
+            const SizedBox(height: 2),
+            if (contact.description.isNotEmpty)
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                decoration: BoxDecoration(
+                  color: Colors.grey[200],
+                  borderRadius: BorderRadius.circular(12),
                 ),
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
+                child: Text(
+                  contact.description,
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.grey[700],
+                    fontWeight: FontWeight.w500,
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
-            ),
             if (contact.tags.isNotEmpty) ...[
-              SizedBox(height: 4),
+              const SizedBox(height: 4),
               Wrap(
                 spacing: 4,
                 children: contact.tags
                     .take(3)
                     .map(
                       (tag) => Chip(
-                        label: Text(tag, style: TextStyle(fontSize: 10)),
-                        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                        visualDensity: VisualDensity.compact,
-                      ),
-                    )
+                    label: Text(tag, style: const TextStyle(fontSize: 10)),
+                    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    visualDensity: VisualDensity.compact,
+                  ),
+                )
                     .toList(),
               ),
             ],
@@ -92,7 +128,7 @@ class ContactCard extends StatelessWidget {
             }
           },
           itemBuilder: (context) => [
-            PopupMenuItem(
+            const PopupMenuItem(
               value: 'call',
               child: Row(
                 children: [
@@ -102,7 +138,7 @@ class ContactCard extends StatelessWidget {
                 ],
               ),
             ),
-            PopupMenuItem(
+            const PopupMenuItem(
               value: 'sms',
               child: Row(
                 children: [
@@ -112,7 +148,7 @@ class ContactCard extends StatelessWidget {
                 ],
               ),
             ),
-            PopupMenuItem(
+            const PopupMenuItem(
               value: 'edit',
               child: Row(
                 children: [
@@ -122,7 +158,7 @@ class ContactCard extends StatelessWidget {
                 ],
               ),
             ),
-            PopupMenuItem(
+            const PopupMenuItem(
               value: 'delete',
               child: Row(
                 children: [
