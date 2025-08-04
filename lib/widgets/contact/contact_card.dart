@@ -1,4 +1,5 @@
 import 'dart:io';
+
 import 'package:flutter/material.dart';
 
 import '../../models/contact.dart';
@@ -22,16 +23,22 @@ class ContactCard extends StatelessWidget {
   Widget _buildAvatar() {
     if (contact.avatar.isNotEmpty) {
       // Check if it's a file path
-      if (contact.avatar.startsWith('/') || contact.avatar.startsWith('file://')) {
+      if (contact.avatar.startsWith('/') ||
+          contact.avatar.startsWith('file://')) {
         return CircleAvatar(
           backgroundImage: FileImage(File(contact.avatar)),
           onBackgroundImageError: (exception, stackTrace) {
             // If image fails to load, fall back to initials
           },
-          child: contact.avatar.isEmpty ? Text(
-            contact.initials,
-            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-          ) : null,
+          child: contact.avatar.isEmpty
+              ? Text(
+                  contact.initials,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                )
+              : null,
         );
       }
       // Check if it's an asset path
@@ -41,10 +48,15 @@ class ContactCard extends StatelessWidget {
           onBackgroundImageError: (exception, stackTrace) {
             // If image fails to load, fall back to initials
           },
-          child: contact.avatar.isEmpty ? Text(
-            contact.initials,
-            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-          ) : null,
+          child: contact.avatar.isEmpty
+              ? Text(
+                  contact.initials,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                )
+              : null,
         );
       }
     }
@@ -54,7 +66,10 @@ class ContactCard extends StatelessWidget {
       backgroundColor: Colors.blue,
       child: Text(
         contact.initials,
-        style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        style: const TextStyle(
+          color: Colors.white,
+          fontWeight: FontWeight.bold,
+        ),
       ),
     );
   }
@@ -100,11 +115,11 @@ class ContactCard extends StatelessWidget {
                     .take(3)
                     .map(
                       (tag) => Chip(
-                    label: Text(tag, style: const TextStyle(fontSize: 10)),
-                    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                    visualDensity: VisualDensity.compact,
-                  ),
-                )
+                        label: Text(tag, style: const TextStyle(fontSize: 10)),
+                        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        visualDensity: VisualDensity.compact,
+                      ),
+                    )
                     .toList(),
               ),
             ],

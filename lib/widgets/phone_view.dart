@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:math';
 
+import 'package:ai_phone/widgets/speech_to_text/session_option_widget.dart';
+import 'package:ai_phone/widgets/speech_to_text/speech_control_widget.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -65,7 +67,6 @@ class _PhoneViewState extends State<PhoneView> {
           padding: const EdgeInsets.all(16.0),
           child: Column(
             children: [
-              //const HeaderWidget(),
               const SizedBox(height: 20),
 
               // Debug controls section
@@ -264,7 +265,7 @@ class _PhoneViewState extends State<PhoneView> {
 
       try {
         final response = await sendChatCompletion(
-            widget.currentContact!.conversation.messagesAsMap
+          widget.currentContact!.conversation.messagesAsMap,
         );
 
         String messageContent = response['choices'][0]['message']['content'];
@@ -308,7 +309,7 @@ class _PhoneViewState extends State<PhoneView> {
         final automaticListen = prefs.getBool('automatic_listen') ?? true;
 
         try {
-          final String? voice = widget.currentContact!.voice ?? null;
+          final String? voice = widget.currentContact!.voice;
           final data = await sendTtsGenerateRequest(messageContent, voice);
           if (data != null) {
             final player = AudioPlayer();
@@ -395,175 +396,5 @@ class _PhoneViewState extends State<PhoneView> {
     setState(() {
       _onDevice = val ?? false;
     });
-  }
-}
-
-class HeaderWidget extends StatelessWidget {
-  const HeaderWidget({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return const Center(
-      child: Text(
-        'Speech recognition available',
-        style: TextStyle(fontSize: 22.0),
-      ),
-    );
-  }
-}
-
-/// Display the current error status from the speech
-/// recognizer
-class ErrorWidget extends StatelessWidget {
-  const ErrorWidget({super.key, required this.lastError});
-
-  final String lastError;
-
-  @override
-  Widget build(BuildContext context) {
-    return const SizedBox.shrink(); // Empty widget since errors are now handled in main build
-  }
-}
-
-/// Controls to start and stop speech recognition
-class SpeechControlWidget extends StatelessWidget {
-  const SpeechControlWidget(
-    this.hasSpeech,
-    this.isListening,
-    this.startListening,
-    this.stopListening,
-    this.cancelListening, {
-    //this.clearConversation,
-    super.key,
-  });
-
-  final bool hasSpeech;
-  final bool isListening;
-  final void Function() startListening;
-  final void Function() stopListening;
-  final void Function() cancelListening;
-
-  //final void Function() clearConversation;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceAround,
-      children: <Widget>[
-        TextButton(
-          onPressed: !hasSpeech || isListening ? null : startListening,
-          child: const Text('Start'),
-        ),
-        TextButton(
-          onPressed: isListening ? stopListening : null,
-          child: const Text('Stop'),
-        ),
-        TextButton(
-          onPressed: isListening ? cancelListening : null,
-          child: const Text('Cancel'),
-        ),
-        /*TextButton(
-          onPressed: clearConversation,
-          child: const Text('Clear'),
-        )*/
-      ],
-    );
-  }
-}
-
-class SessionOptionsWidget extends StatelessWidget {
-  const SessionOptionsWidget(
-    this.currentLocaleId,
-    this.switchLang,
-    this.localeNames,
-    this.logEvents,
-    this.pauseForController,
-    this.listenForController,
-    this.onDevice,
-    this.switchOnDevice, {
-    super.key,
-  });
-
-  final String currentLocaleId;
-  final void Function(String?) switchLang;
-  final void Function(bool?) switchOnDevice;
-  final TextEditingController pauseForController;
-  final TextEditingController listenForController;
-  final List<LocaleName> localeNames;
-  final bool logEvents;
-  final bool onDevice;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: <Widget>[
-          Row(
-            children: [
-              const Text('Language: '),
-              DropdownButton<String>(
-                onChanged: (selectedVal) => switchLang(selectedVal),
-                value: currentLocaleId,
-                items: localeNames
-                    .map(
-                      (localeName) => DropdownMenuItem(
-                        value: localeName.localeId,
-                        child: Text(localeName.name),
-                      ),
-                    )
-                    .toList(),
-              ),
-            ],
-          ),
-          Row(
-            children: [
-              const Text('pauseFor: '),
-              Container(
-                padding: const EdgeInsets.only(left: 8),
-                width: 80,
-                child: TextFormField(controller: pauseForController),
-              ),
-              Container(
-                padding: const EdgeInsets.only(left: 16),
-                child: const Text('listenFor: '),
-              ),
-              Container(
-                padding: const EdgeInsets.only(left: 8),
-                width: 80,
-                child: TextFormField(controller: listenForController),
-              ),
-            ],
-          ),
-          Row(
-            children: [
-              const Text('On device: '),
-              Checkbox(value: onDevice, onChanged: switchOnDevice),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class InitSpeechWidget extends StatelessWidget {
-  const InitSpeechWidget(this.hasSpeech, this.initSpeechState, {super.key});
-
-  final bool hasSpeech;
-  final Future<void> Function() initSpeechState;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceAround,
-      children: <Widget>[
-        TextButton(
-          onPressed: hasSpeech ? null : initSpeechState,
-          child: const Text('Initialize'),
-        ),
-      ],
-    );
   }
 }

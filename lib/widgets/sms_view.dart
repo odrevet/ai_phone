@@ -5,17 +5,12 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../api.dart';
 import '../models/contact.dart';
-import 'contact/contact_avatar.dart';
 
 class SMSView extends StatefulWidget {
   final Contact? currentContact;
   final VoidCallback? clearConversation;
 
-  const SMSView({
-    super.key,
-    this.currentContact,
-    this.clearConversation,
-  });
+  const SMSView({super.key, this.currentContact, this.clearConversation});
 
   @override
   SMSViewState createState() => SMSViewState();
@@ -214,8 +209,8 @@ class SMSViewState extends State<SMSView> with TickerProviderStateMixin {
                   onPressed: _isTyping
                       ? null
                       : () async {
-                    await _sendMessage();
-                  },
+                          await _sendMessage();
+                        },
                   icon: Icon(
                     Icons.send,
                     color: _isTyping ? Colors.grey.shade500 : Colors.white,
@@ -243,7 +238,10 @@ class SMSViewState extends State<SMSView> with TickerProviderStateMixin {
     // Get conversation messages from current contact, filter only user and assistant messages
     final allMessages = widget.currentContact?.conversation.messagesAsMap ?? [];
     final conversationHistory = allMessages
-        .where((message) => message['role'] == 'user' || message['role'] == 'assistant')
+        .where(
+          (message) =>
+              message['role'] == 'user' || message['role'] == 'assistant',
+        )
         .toList();
 
     return Scaffold(
@@ -254,18 +252,18 @@ class SMSViewState extends State<SMSView> with TickerProviderStateMixin {
             child: conversationHistory.isEmpty && !_isTyping
                 ? _buildEmptyState()
                 : ListView.builder(
-              controller: _scrollController,
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              itemCount: conversationHistory.length + (_isTyping ? 1 : 0),
-              itemBuilder: (context, index) {
-                if (_isTyping && index == conversationHistory.length) {
-                  return _buildTypingIndicator();
-                }
+                    controller: _scrollController,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    itemCount: conversationHistory.length + (_isTyping ? 1 : 0),
+                    itemBuilder: (context, index) {
+                      if (_isTyping && index == conversationHistory.length) {
+                        return _buildTypingIndicator();
+                      }
 
-                final message = conversationHistory[index];
-                return _buildMessageBubble(message);
-              },
-            ),
+                      final message = conversationHistory[index];
+                      return _buildMessageBubble(message);
+                    },
+                  ),
           ),
           _buildInputArea(),
         ],
@@ -289,7 +287,7 @@ class SMSViewState extends State<SMSView> with TickerProviderStateMixin {
       try {
         // Use the contact's conversation for API call
         final response = await sendChatCompletion(
-            widget.currentContact!.conversation.messagesAsMap
+          widget.currentContact!.conversation.messagesAsMap,
         );
 
         _animationController.stop();

@@ -35,7 +35,9 @@ class Contact {
     // Initialize conversation with contact-specific messages
     conversation = Conversation();
 
-    conversation.addSystemMessage("You are using a phone to communicate. give short answers. No ");
+    conversation.addSystemMessage(
+      "You are using a phone to communicate. give short answers. No ",
+    );
 
     if (description.isNotEmpty) {
       conversation.addSystemMessage(description);

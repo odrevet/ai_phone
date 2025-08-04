@@ -105,10 +105,7 @@ class _AiPhoneState extends State<AiPhone> {
             ? AppBar(
                 title: Row(
                   children: [
-                    ContactAvatar(
-                      contact: _currentContact!,
-                      radius: 20,
-                    ),
+                    ContactAvatar(contact: _currentContact!, radius: 20),
                     SizedBox(width: 8),
                     Expanded(
                       child: Column(

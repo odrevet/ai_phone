@@ -18,7 +18,7 @@ class ContactDialogState extends State<ContactDialog>
   final _nameController = TextEditingController();
   final _phoneController = TextEditingController();
   final _descriptionController =
-  TextEditingController(); // Updated from character
+      TextEditingController(); // Updated from character
   final _personalityController = TextEditingController(); // Added personality
   final _voiceController = TextEditingController(); // Added voice
   final _scenarioController = TextEditingController();
@@ -78,14 +78,14 @@ class ContactDialogState extends State<ContactDialog>
       final tagsList = tagsText.isEmpty
           ? <String>[]
           : tagsText
-          .split(',')
-          .map((tag) => tag.trim())
-          .where((tag) => tag.isNotEmpty)
-          .toList();
+                .split(',')
+                .map((tag) => tag.trim())
+                .where((tag) => tag.isNotEmpty)
+                .toList();
 
       final contact = Contact(
         id:
-        widget.contact?.id ??
+            widget.contact?.id ??
             DateTime.now().millisecondsSinceEpoch.toString(),
         name: _nameController.text.trim(),
         phoneNumber: _phoneController.text.trim(),
@@ -93,7 +93,8 @@ class ContactDialogState extends State<ContactDialog>
         // Updated field
         personality: _personalityController.text.trim(),
         // Added personality
-        voice: _voiceController.text.trim(), // Added voice
+        voice: _voiceController.text.trim(),
+        // Added voice
         scenario: _scenarioController.text.trim(),
         firstMessage: _firstMessageController.text.trim(),
         messageExample: _messageExampleController.text.trim(),

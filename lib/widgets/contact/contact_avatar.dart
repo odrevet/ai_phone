@@ -1,5 +1,7 @@
 import 'dart:io';
+
 import 'package:flutter/material.dart';
+
 import '../../models/contact.dart';
 
 class ContactAvatar extends StatelessWidget {
@@ -22,7 +24,8 @@ class ContactAvatar extends StatelessWidget {
   Widget build(BuildContext context) {
     if (contact.avatar.isNotEmpty) {
       // Check if it's a file path
-      if (contact.avatar.startsWith('/') || contact.avatar.startsWith('file://')) {
+      if (contact.avatar.startsWith('/') ||
+          contact.avatar.startsWith('file://')) {
         return CircleAvatar(
           radius: radius,
           backgroundImage: FileImage(File(contact.avatar)),
@@ -32,7 +35,8 @@ class ContactAvatar extends StatelessWidget {
         );
       }
       // Check if it's a network URL
-      else if (contact.avatar.startsWith('http://') || contact.avatar.startsWith('https://')) {
+      else if (contact.avatar.startsWith('http://') ||
+          contact.avatar.startsWith('https://')) {
         return CircleAvatar(
           radius: radius,
           backgroundImage: NetworkImage(contact.avatar),

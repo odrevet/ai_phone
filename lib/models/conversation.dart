@@ -3,9 +3,8 @@ import 'message.dart';
 class Conversation {
   final List<Message> _messages;
 
-  Conversation({
-    List<Message>? initialMessages,
-  }) : _messages = initialMessages ?? [];
+  Conversation({List<Message>? initialMessages})
+    : _messages = initialMessages ?? [];
 
   // Get all messages
   List<Message> get messages => List.unmodifiable(_messages);

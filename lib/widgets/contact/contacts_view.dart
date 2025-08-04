@@ -6,9 +6,9 @@ import 'dart:typed_data';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:image/image.dart' as img;
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as path;
+import 'package:path_provider/path_provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../models/contact.dart';
 import 'character_card_metadata_dialog.dart';
@@ -69,13 +69,18 @@ class _ContactsViewState extends State<ContactsView> {
     );
   }
 
-  Future<String?> _copyImageToAppDirectory(File sourceFile, String contactId) async {
+  Future<String?> _copyImageToAppDirectory(
+    File sourceFile,
+    String contactId,
+  ) async {
     try {
       // Get the app's documents directory
       final Directory appDocDir = await getApplicationDocumentsDirectory();
 
       // Create avatars subdirectory if it doesn't exist
-      final Directory avatarsDir = Directory(path.join(appDocDir.path, 'avatars'));
+      final Directory avatarsDir = Directory(
+        path.join(appDocDir.path, 'avatars'),
+      );
       if (!await avatarsDir.exists()) {
         await avatarsDir.create(recursive: true);
       }
@@ -132,10 +137,14 @@ class _ContactsViewState extends State<ContactsView> {
 
         if (metadata.isNotEmpty) {
           // Generate a temporary contact ID for the avatar file
-          final String tempContactId = DateTime.now().millisecondsSinceEpoch.toString();
+          final String tempContactId = DateTime.now().millisecondsSinceEpoch
+              .toString();
 
           // Copy the PNG file to app directory
-          final String? avatarPath = await _copyImageToAppDirectory(file, tempContactId);
+          final String? avatarPath = await _copyImageToAppDirectory(
+            file,
+            tempContactId,
+          );
 
           _showMetadataDialog(metadata, result.files.single.name, avatarPath);
         } else {
@@ -168,7 +177,11 @@ class _ContactsViewState extends State<ContactsView> {
     return metadata;
   }
 
-  void _showMetadataDialog(Map<String, String> metadata, String filename, String? avatarPath) {
+  void _showMetadataDialog(
+    Map<String, String> metadata,
+    String filename,
+    String? avatarPath,
+  ) {
     showDialog(
       context: context,
       builder: (context) => CharacterCardMetadataDialog(
@@ -221,21 +234,20 @@ class _ContactsViewState extends State<ContactsView> {
 
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (contextDialog) => AlertDialog(
         title: Text('Delete Contact'),
-        content: Text(
-          'Are you sure you want to delete ${contact.name}?',
-        ),
+        content: Text('Are you sure you want to delete ${contact.name}?'),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => Navigator.pop(contextDialog),
             child: Text('Cancel'),
           ),
           TextButton(
             onPressed: () async {
               // Delete the avatar file if it exists and is in app directory
               if (contact.avatar.isNotEmpty &&
-                  (contact.avatar.contains('/avatars/') || contact.avatar.startsWith('/'))) {
+                  (contact.avatar.contains('/avatars/') ||
+                      contact.avatar.startsWith('/'))) {
                 try {
                   final file = File(contact.avatar);
                   if (await file.exists()) {
@@ -250,7 +262,11 @@ class _ContactsViewState extends State<ContactsView> {
                 contacts.removeAt(index);
               });
               _saveContacts();
-              Navigator.pop(context);
+
+              if (mounted) {
+                Navigator.pop(context);
+              }
+
             },
             child: Text('Delete', style: TextStyle(color: Colors.red)),
           ),
@@ -308,26 +324,26 @@ class _ContactsViewState extends State<ContactsView> {
       body: contacts.isEmpty
           ? _buildEmptyState()
           : ListView.builder(
-        itemCount: contacts.length,
-        itemBuilder: (context, index) {
-          final contact = contacts[index];
-          return ContactCard(
-            contact: contact,
-            onCall: () {
-              if (widget.onContactCall != null) {
-                widget.onContactCall!(contact);
-              }
-            },
-            onSms: () {
-              if (widget.onContactSms != null) {
-                widget.onContactSms!(contact);
-              }
-            },
-            onEdit: () => _editContact(contact, index),
-            onDelete: () => _deleteContact(index),
-          );
-        },
-      ),
+              itemCount: contacts.length,
+              itemBuilder: (context, index) {
+                final contact = contacts[index];
+                return ContactCard(
+                  contact: contact,
+                  onCall: () {
+                    if (widget.onContactCall != null) {
+                      widget.onContactCall!(contact);
+                    }
+                  },
+                  onSms: () {
+                    if (widget.onContactSms != null) {
+                      widget.onContactSms!(contact);
+                    }
+                  },
+                  onEdit: () => _editContact(contact, index),
+                  onDelete: () => _deleteContact(index),
+                );
+              },
+            ),
       floatingActionButton: FloatingActionButton(
         onPressed: _addContact,
         tooltip: 'Add Contact',

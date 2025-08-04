@@ -3,18 +3,11 @@ class Message {
   final String content;
   final DateTime? timestamp;
 
-  Message({
-    required this.role,
-    required this.content,
-    this.timestamp,
-  });
+  Message({required this.role, required this.content, this.timestamp});
 
   // Convert to Map for API calls or serialization
   Map<String, String> toMap() {
-    return {
-      'role': role,
-      'content': content,
-    };
+    return {'role': role, 'content': content};
   }
 
   // Create Message from Map
@@ -38,11 +31,13 @@ class Message {
   }
 
   factory Message.assistant(String content) {
-    return Message(role: 'assistant', content: content, timestamp: DateTime.now());
+    return Message(
+      role: 'assistant',
+      content: content,
+      timestamp: DateTime.now(),
+    );
   }
 
   @override
   String toString() => 'Message(role: $role, content: $content)';
 }
-
-

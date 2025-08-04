@@ -66,7 +66,6 @@ class CharacterCardMetadataDialogState
         final mesExample = dataDecoded['mes_example'] ?? '';
         final creatorComment =
             dataDecoded['creatorcomment'] ?? dataDecoded['creator_notes'] ?? '';
-        final avatar = dataDecoded['avatar'] ?? '';
         final chat = dataDecoded['chat'] ?? '';
         final tags = dataDecoded['tags'] ?? [];
 
@@ -125,10 +124,10 @@ class CharacterCardMetadataDialogState
       final tagsList = tagsText.isEmpty
           ? <String>[]
           : tagsText
-          .split(',')
-          .map((tag) => tag.trim())
-          .where((tag) => tag.isNotEmpty)
-          .toList();
+                .split(',')
+                .map((tag) => tag.trim())
+                .where((tag) => tag.isNotEmpty)
+                .toList();
 
       final contact = Contact(
         id: DateTime.now().millisecondsSinceEpoch.toString(),
@@ -140,7 +139,8 @@ class CharacterCardMetadataDialogState
         firstMessage: _firstMessageController.text.trim(),
         messageExample: _messageExampleController.text.trim(),
         creatorComment: _creatorCommentController.text.trim(),
-        avatar: _avatarController.text.trim(), // This will be the copied file path
+        avatar: _avatarController.text.trim(),
+        // This will be the copied file path
         chat: _chatController.text.trim(),
         tags: tagsList,
       );
@@ -183,19 +183,12 @@ class CharacterCardMetadataDialogState
                   SizedBox(height: 4),
                   Text(
                     'Image will be used as contact avatar',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Colors.grey.shade600,
-                    ),
+                    style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
                   ),
                 ],
               ),
             ),
-            Icon(
-              Icons.check_circle,
-              color: Colors.green,
-              size: 20,
-            ),
+            Icon(Icons.check_circle, color: Colors.green, size: 20),
           ],
         ),
       );
@@ -335,7 +328,8 @@ class CharacterCardMetadataDialogState
                         border: OutlineInputBorder(),
                         hintText: 'Avatar file path (auto-filled)',
                       ),
-                      readOnly: true, // Make it read-only since it's auto-filled
+                      readOnly: true,
+                      // Make it read-only since it's auto-filled
                       style: TextStyle(color: Colors.grey.shade600),
                     ),
                     SizedBox(height: 16),
