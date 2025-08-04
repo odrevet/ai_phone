@@ -26,7 +26,7 @@ Future<dynamic> sendTtsGenerateRequest(String messageContent) async {
   final ttsApiKey = prefs.getString('api_key_tts');
 
   if (ttsApiAddress == null) {
-    //print('Error: TTS API address not found in preferences');
+    developer.log('Error: TTS API address not found in preferences');
     return null;
   }
 
@@ -67,7 +67,7 @@ Future<dynamic> sendTtsGenerateRequest(String messageContent) async {
       return null;
     }
   } catch (e) {
-    //print('Error making TTS request: $e');
+    developer.log('Error making TTS request: $e');
     return null;
   }
 }
