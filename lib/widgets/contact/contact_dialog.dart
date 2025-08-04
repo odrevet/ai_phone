@@ -172,12 +172,6 @@ class ContactDialogState extends State<ContactDialog>
                 border: OutlineInputBorder(),
               ),
               keyboardType: TextInputType.phone,
-              validator: (value) {
-                if (value == null || value.trim().isEmpty) {
-                  return 'Please enter a phone number';
-                }
-                return null;
-              },
             ),
             SizedBox(height: 16),
             TextFormField(
