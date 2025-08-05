@@ -307,9 +307,7 @@ class _PhoneViewState extends State<PhoneView> with ErrorHandlerMixin {
           displayError('TTS Error: ${error.toString()}');
 
           // Start listening even if TTS fails, but only if enabled
-          if (automaticListen &&
-              widget.hasSpeech &&
-              !widget.isLocalListening) {
+          if (automaticListen && widget.hasSpeech && !widget.isLocalListening) {
             Future.delayed(const Duration(milliseconds: 500), () {
               if (mounted && !widget.isLocalListening) {
                 startListening();
