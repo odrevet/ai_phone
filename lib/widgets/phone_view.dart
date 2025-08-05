@@ -51,7 +51,6 @@ class _PhoneViewState extends State<PhoneView> {
   double minSoundLevel = 50000;
   double maxSoundLevel = -50000;
   String lastWords = '';
-  String lastError = '';
   String lastStatus = '';
 
   Future<void> _loadDebugMode() async {
@@ -59,6 +58,19 @@ class _PhoneViewState extends State<PhoneView> {
     setState(() {
       debug = prefs.getBool('debug_mode') ?? false;
     });
+  }
+
+  // Helper method to display errors in UI
+  void _displayError(String error) {
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(error),
+          backgroundColor: Colors.red,
+          duration: const Duration(seconds: 10),
+        ),
+      );
+    }
   }
 
   @override
@@ -144,7 +156,9 @@ class _PhoneViewState extends State<PhoneView> {
                         borderRadius: BorderRadius.circular(80),
                         onTap: !widget.hasSpeech || widget.speech.isListening
                             ? null
-                            : startListening,
+                            : () {
+                          startListening();
+                        },
                         child: const Icon(
                           Icons.phone,
                           size: 60,
@@ -155,26 +169,6 @@ class _PhoneViewState extends State<PhoneView> {
                   ),
                 ),
               ),
-
-              // Error display at bottom
-              if (lastError.isNotEmpty) ...[
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  margin: const EdgeInsets.only(top: 16),
-                  decoration: BoxDecoration(
-                    color: Colors.red.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(
-                      color: Colors.red.withValues(alpha: 0.3),
-                    ),
-                  ),
-                  child: SelectableText(
-                    lastError,
-                    style: const TextStyle(color: Colors.red),
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-              ],
             ],
           ),
         ),
@@ -185,7 +179,6 @@ class _PhoneViewState extends State<PhoneView> {
   // This is called each time the users wants to start a new speech
   void startListening() {
     lastWords = '';
-    lastError = '';
     final pauseFor = int.tryParse(_pauseForController.text);
     final listenFor = int.tryParse(_listenForController.text);
     final options = SpeechListenOptions(
@@ -315,26 +308,19 @@ class _PhoneViewState extends State<PhoneView> {
             }
           }
         } catch (error) {
-          if (mounted) {
-            ScaffoldMessenger.of(
-              context,
-            ).showSnackBar(SnackBar(content: Text('TTS error: $error')));
-            // Start listening even if TTS fails, but only if enabled
-            if (automaticListen && widget.hasSpeech && !widget.speech.isListening) {
-              Future.delayed(const Duration(milliseconds: 500), () {
-                if (mounted && !widget.speech.isListening) {
-                  startListening();
-                }
-              });
-            }
+          _displayError('TTS Error: ${error.toString()}');
+
+          // Start listening even if TTS fails, but only if enabled
+          if (automaticListen && widget.hasSpeech && !widget.speech.isListening) {
+            Future.delayed(const Duration(milliseconds: 500), () {
+              if (mounted && !widget.speech.isListening) {
+                startListening();
+              }
+            });
           }
         }
       } catch (error) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Chat completion error: $error')),
-          );
-        }
+        _displayError('Chat Error: ${error.toString()}');
       }
     }
   }
@@ -348,9 +334,7 @@ class _PhoneViewState extends State<PhoneView> {
   }
 
   void errorListener(SpeechRecognitionError error) {
-    setState(() {
-      lastError = '${error.errorMsg} - ${error.permanent}';
-    });
+    _displayError('Speech Recognition Error: ${error.errorMsg} - ${error.permanent}');
   }
 
   void statusListener(String status) {

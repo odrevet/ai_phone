@@ -1,12 +1,11 @@
 import 'dart:convert';
 import 'dart:developer' as developer;
-
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 Future<Map<String, dynamic>> sendChatCompletion(
-  List<Map<String, String>> conversationHistory,
-) async {
+    List<Map<String, String>> conversationHistory,
+    ) async {
   final prefs = await SharedPreferences.getInstance();
   final apiAddress = prefs.getString('openai_api_address');
 
@@ -19,10 +18,11 @@ Future<Map<String, dynamic>> sendChatCompletion(
   return jsonDecode(utf8.decode(response.bodyBytes));
 }
 
+// Updated TTS function that throws exceptions instead of logging
 Future<dynamic> sendTtsGenerateRequest(
-  String messageContent,
-  String? voice,
-) async {
+    String messageContent,
+    String? voice,
+    ) async {
   final prefs = await SharedPreferences.getInstance();
   final ttsApiAddress = prefs.getString('tts_api_address');
   final selectedVoice = (voice != null && voice.trim().isNotEmpty)
@@ -32,8 +32,7 @@ Future<dynamic> sendTtsGenerateRequest(
   final ttsApiKey = prefs.getString('api_key_tts');
 
   if (ttsApiAddress == null) {
-    developer.log('Error: TTS API address not found in preferences');
-    return null;
+    throw Exception('TTS API address not found in preferences');
   }
 
   final url = Uri.parse('$ttsApiAddress/v1/audio/speech');
@@ -47,33 +46,26 @@ Future<dynamic> sendTtsGenerateRequest(
   };
   final headers = {
     'Authorization':
-        'Bearer ${ttsApiKey?.trim().isNotEmpty == true ? ttsApiKey : 'your_api_key_here'}',
+    'Bearer ${ttsApiKey?.trim().isNotEmpty == true ? ttsApiKey : 'your_api_key_here'}',
     'Content-Type': 'application/json',
   };
 
-  try {
-    final response = await http.post(
-      url,
-      headers: headers,
-      body: jsonEncode(body),
+  final response = await http.post(
+    url,
+    headers: headers,
+    body: jsonEncode(body),
+  );
+
+  if (response.statusCode == 200) {
+    // Convert the response body bytes to Uint8List
+    return response.bodyBytes;
+  } else {
+    // Throw detailed error information
+    throw Exception(
+        'TTS request failed with status ${response.statusCode}. '
+            'Response: ${response.body}. '
+            'Request body: $body. '
+            'Headers: $headers'
     );
-
-    if (response.statusCode == 200) {
-      // Convert the response body bytes to Uint8List
-      return response.bodyBytes;
-    } else {
-      developer.log(
-        'Error: TTS request failed with status ${response.statusCode}',
-      );
-      developer.log('Response body: ${response.body}');
-
-      developer.log("request was $body");
-      developer.log("header was $headers");
-
-      return null;
-    }
-  } catch (e) {
-    developer.log('Error making TTS request: $e');
-    return null;
   }
 }

@@ -1,5 +1,3 @@
-import 'dart:developer' as developer;
-
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -48,6 +46,26 @@ class SMSViewState extends State<SMSView> with TickerProviderStateMixin {
         );
       }
     });
+  }
+
+  // Helper method to display errors in UI
+  void _displayError(String error) {
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(error),
+          backgroundColor: Colors.red,
+          duration: const Duration(seconds: 10),
+          action: SnackBarAction(
+            label: 'Dismiss',
+            textColor: Colors.white,
+            onPressed: () {
+              ScaffoldMessenger.of(context).hideCurrentSnackBar();
+            },
+          ),
+        ),
+      );
+    }
   }
 
   Widget _buildTypingIndicator() {
@@ -209,8 +227,8 @@ class SMSViewState extends State<SMSView> with TickerProviderStateMixin {
                   onPressed: _isTyping
                       ? null
                       : () async {
-                          await _sendMessage();
-                        },
+                    await _sendMessage();
+                  },
                   icon: Icon(
                     Icons.send,
                     color: _isTyping ? Colors.grey.shade500 : Colors.white,
@@ -240,8 +258,8 @@ class SMSViewState extends State<SMSView> with TickerProviderStateMixin {
     final conversationHistory = allMessages
         .where(
           (message) =>
-              message['role'] == 'user' || message['role'] == 'assistant',
-        )
+      message['role'] == 'user' || message['role'] == 'assistant',
+    )
         .toList();
 
     return Scaffold(
@@ -252,18 +270,18 @@ class SMSViewState extends State<SMSView> with TickerProviderStateMixin {
             child: conversationHistory.isEmpty && !_isTyping
                 ? _buildEmptyState()
                 : ListView.builder(
-                    controller: _scrollController,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    itemCount: conversationHistory.length + (_isTyping ? 1 : 0),
-                    itemBuilder: (context, index) {
-                      if (_isTyping && index == conversationHistory.length) {
-                        return _buildTypingIndicator();
-                      }
+              controller: _scrollController,
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              itemCount: conversationHistory.length + (_isTyping ? 1 : 0),
+              itemBuilder: (context, index) {
+                if (_isTyping && index == conversationHistory.length) {
+                  return _buildTypingIndicator();
+                }
 
-                      final message = conversationHistory[index];
-                      return _buildMessageBubble(message);
-                    },
-                  ),
+                final message = conversationHistory[index];
+                return _buildMessageBubble(message);
+              },
+            ),
           ),
           _buildInputArea(),
         ],
@@ -315,7 +333,7 @@ class SMSViewState extends State<SMSView> with TickerProviderStateMixin {
         setState(() {
           _isTyping = false;
         });
-        developer.log('Error sending message: $error');
+        _displayError('Chat Error: ${error.toString()}');
       }
     }
   }
