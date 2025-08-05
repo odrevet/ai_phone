@@ -21,6 +21,7 @@ class PhoneView extends StatefulWidget {
   final SpeechToText speech;
   final bool hasSpeech;
   final String currentLocaleId;
+  final bool isLocalListening;
 
   const PhoneView({
     super.key,
@@ -30,6 +31,7 @@ class PhoneView extends StatefulWidget {
     required this.speech,
     required this.hasSpeech,
     required this.currentLocaleId,
+    required this.isLocalListening,
   });
 
   @override
@@ -128,7 +130,7 @@ class _PhoneViewState extends State<PhoneView> with ErrorHandlerMixin {
                     height: 160,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: widget.speech.isListening
+                      color: widget.isLocalListening
                           ? Colors.green
                           : Colors.red,
                       boxShadow: [
@@ -136,7 +138,7 @@ class _PhoneViewState extends State<PhoneView> with ErrorHandlerMixin {
                           blurRadius: 20,
                           spreadRadius: level * 2,
                           color:
-                              (widget.speech.isListening
+                              (widget.isLocalListening
                                       ? Colors.green
                                       : Colors.red)
                                   .withValues(alpha: 0.3),
@@ -148,7 +150,7 @@ class _PhoneViewState extends State<PhoneView> with ErrorHandlerMixin {
                       color: Colors.transparent,
                       child: InkWell(
                         borderRadius: BorderRadius.circular(80),
-                        onTap: !widget.hasSpeech || widget.speech.isListening
+                        onTap: !widget.hasSpeech || widget.isLocalListening
                             ? null
                             : () {
                                 startListening();
@@ -281,7 +283,7 @@ class _PhoneViewState extends State<PhoneView> with ErrorHandlerMixin {
                 if (mounted && widget.hasSpeech) {
                   // Small delay to ensure smooth transition
                   Future.delayed(const Duration(milliseconds: 500), () {
-                    if (mounted && !widget.speech.isListening) {
+                    if (mounted && !widget.isLocalListening) {
                       startListening();
                     }
                   });
@@ -295,7 +297,7 @@ class _PhoneViewState extends State<PhoneView> with ErrorHandlerMixin {
                 widget.hasSpeech &&
                 !widget.speech.isListening) {
               Future.delayed(const Duration(milliseconds: 500), () {
-                if (mounted && !widget.speech.isListening) {
+                if (mounted && !widget.isLocalListening) {
                   startListening();
                 }
               });
@@ -307,9 +309,9 @@ class _PhoneViewState extends State<PhoneView> with ErrorHandlerMixin {
           // Start listening even if TTS fails, but only if enabled
           if (automaticListen &&
               widget.hasSpeech &&
-              !widget.speech.isListening) {
+              !widget.isLocalListening) {
             Future.delayed(const Duration(milliseconds: 500), () {
-              if (mounted && !widget.speech.isListening) {
+              if (mounted && !widget.isLocalListening) {
                 startListening();
               }
             });

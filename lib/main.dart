@@ -6,8 +6,10 @@ import 'package:ai_phone/widgets/settings.dart';
 import 'package:ai_phone/widgets/sms_view.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:speech_to_text/speech_recognition_error.dart';
 import 'package:speech_to_text/speech_to_text.dart';
 
+import 'error_handler.dart';
 import 'models/message.dart';
 
 void main() => runApp(const AiPhone());
@@ -19,7 +21,7 @@ class AiPhone extends StatefulWidget {
   State<AiPhone> createState() => _AiPhoneState();
 }
 
-class _AiPhoneState extends State<AiPhone> {
+class _AiPhoneState extends State<AiPhone> with ErrorHandlerMixin {
   Contact? _currentContact;
   int _selectedIndex = 0; // menu tab index
 
@@ -29,6 +31,7 @@ class _AiPhoneState extends State<AiPhone> {
   String _currentLocaleId = '';
   List<LocaleName> _localeNames = [];
   bool _speechInitialized = false;
+  bool _isLocalListening = false;
 
   @override
   void initState() {
@@ -36,9 +39,35 @@ class _AiPhoneState extends State<AiPhone> {
     _initializeSpeech();
   }
 
+  void errorListener(SpeechRecognitionError error) {
+    setState(() {
+      _isLocalListening = false;
+    });
+
+    displayError(
+      'Speech Recognition Error: ${error.errorMsg} - ${error.permanent}',
+    );
+  }
+
+  void statusListener(String status) {
+    if (status == 'notListening' || status == 'done') {
+      setState(() {
+        _isLocalListening = false;
+      });
+    } else if (status == 'listening') {
+      setState(() {
+        _isLocalListening = true;
+      });
+    }
+  }
+
   Future<void> _initializeSpeech() async {
     try {
-      bool hasSpeech = await speech.initialize(debugLogging: false);
+      bool hasSpeech = await speech.initialize(
+        debugLogging: false,
+        onError: errorListener,
+        onStatus: statusListener,
+      );
 
       if (hasSpeech) {
         // Get the list of languages installed on the supporting platform
@@ -150,6 +179,7 @@ class _AiPhoneState extends State<AiPhone> {
         speech: speech,
         hasSpeech: _hasSpeech,
         currentLocaleId: _currentLocaleId,
+        isLocalListening: _isLocalListening,
       ),
       SMSView(
         //addMessageToConversation: addMessageToConversation,
