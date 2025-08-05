@@ -11,6 +11,7 @@ import 'package:speech_to_text/speech_recognition_result.dart';
 import 'package:speech_to_text/speech_to_text.dart';
 
 import '../api.dart';
+import '../error_handler.dart'; // Import the error handler
 import '../models/contact.dart';
 
 class PhoneView extends StatefulWidget {
@@ -35,7 +36,7 @@ class PhoneView extends StatefulWidget {
   State<PhoneView> createState() => _PhoneViewState();
 }
 
-class _PhoneViewState extends State<PhoneView> {
+class _PhoneViewState extends State<PhoneView> with ErrorHandlerMixin {
   // Debug variable - set to true to show debug controls
   bool debug = false;
 
@@ -58,19 +59,6 @@ class _PhoneViewState extends State<PhoneView> {
     setState(() {
       debug = prefs.getBool('debug_mode') ?? false;
     });
-  }
-
-  // Helper method to display errors in UI
-  void _displayError(String error) {
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(error),
-          backgroundColor: Colors.red,
-          duration: const Duration(seconds: 10),
-        ),
-      );
-    }
   }
 
   @override
@@ -101,8 +89,10 @@ class _PhoneViewState extends State<PhoneView> {
                 const SizedBox(height: 16),
                 SessionOptionsWidget(
                   widget.currentLocaleId,
-                      (String? val) {}, // Language switching handled in main settings
-                  [], // Empty list since handled in settings
+                  (String? val) {},
+                  // Language switching handled in main settings
+                  [],
+                  // Empty list since handled in settings
                   _logEvents,
                   _pauseForController,
                   _listenForController,
@@ -138,14 +128,18 @@ class _PhoneViewState extends State<PhoneView> {
                     height: 160,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: widget.speech.isListening ? Colors.green : Colors.red,
+                      color: widget.speech.isListening
+                          ? Colors.green
+                          : Colors.red,
                       boxShadow: [
                         BoxShadow(
                           blurRadius: 20,
                           spreadRadius: level * 2,
                           color:
-                          (widget.speech.isListening ? Colors.green : Colors.red)
-                              .withValues(alpha: 0.3),
+                              (widget.speech.isListening
+                                      ? Colors.green
+                                      : Colors.red)
+                                  .withValues(alpha: 0.3),
                           offset: const Offset(0, 4),
                         ),
                       ],
@@ -157,8 +151,8 @@ class _PhoneViewState extends State<PhoneView> {
                         onTap: !widget.hasSpeech || widget.speech.isListening
                             ? null
                             : () {
-                          startListening();
-                        },
+                                startListening();
+                              },
                         child: const Icon(
                           Icons.phone,
                           size: 60,
@@ -308,10 +302,12 @@ class _PhoneViewState extends State<PhoneView> {
             }
           }
         } catch (error) {
-          _displayError('TTS Error: ${error.toString()}');
+          displayError('TTS Error: ${error.toString()}');
 
           // Start listening even if TTS fails, but only if enabled
-          if (automaticListen && widget.hasSpeech && !widget.speech.isListening) {
+          if (automaticListen &&
+              widget.hasSpeech &&
+              !widget.speech.isListening) {
             Future.delayed(const Duration(milliseconds: 500), () {
               if (mounted && !widget.speech.isListening) {
                 startListening();
@@ -320,7 +316,7 @@ class _PhoneViewState extends State<PhoneView> {
           }
         }
       } catch (error) {
-        _displayError('Chat Error: ${error.toString()}');
+        displayError('Chat Error: ${error.toString()}');
       }
     }
   }
@@ -334,7 +330,9 @@ class _PhoneViewState extends State<PhoneView> {
   }
 
   void errorListener(SpeechRecognitionError error) {
-    _displayError('Speech Recognition Error: ${error.errorMsg} - ${error.permanent}');
+    displayError(
+      'Speech Recognition Error: ${error.errorMsg} - ${error.permanent}',
+    );
   }
 
   void statusListener(String status) {

@@ -38,9 +38,7 @@ class _AiPhoneState extends State<AiPhone> {
 
   Future<void> _initializeSpeech() async {
     try {
-      bool hasSpeech = await speech.initialize(
-        debugLogging: false,
-      );
+      bool hasSpeech = await speech.initialize(debugLogging: false);
 
       if (hasSpeech) {
         // Get the list of languages installed on the supporting platform
@@ -50,7 +48,8 @@ class _AiPhoneState extends State<AiPhone> {
         final prefs = await SharedPreferences.getInstance();
         String? savedLocale = prefs.getString('speech_locale');
 
-        if (savedLocale != null && _localeNames.any((l) => l.localeId == savedLocale)) {
+        if (savedLocale != null &&
+            _localeNames.any((l) => l.localeId == savedLocale)) {
           _currentLocaleId = savedLocale;
         } else {
           var systemLocale = await speech.systemLocale();
@@ -93,10 +92,10 @@ class _AiPhoneState extends State<AiPhone> {
 
   // Set the current contact and switch to appropriate view
   void setCurrentContact(
-      Contact contact, {
-        bool isCall = false,
-        bool isSms = false,
-      }) {
+    Contact contact, {
+    bool isCall = false,
+    bool isSms = false,
+  }) {
     setState(() {
       _currentContact = contact;
 
@@ -139,11 +138,7 @@ class _AiPhoneState extends State<AiPhone> {
   Widget build(BuildContext context) {
     if (!_speechInitialized) {
       return MaterialApp(
-        home: Scaffold(
-          body: const Center(
-            child: CircularProgressIndicator(),
-          ),
-        ),
+        home: Scaffold(body: const Center(child: CircularProgressIndicator())),
       );
     }
 
@@ -176,46 +171,46 @@ class _AiPhoneState extends State<AiPhone> {
       home: Scaffold(
         appBar: _currentContact != null
             ? AppBar(
-          title: Row(
-            children: [
-              ContactAvatar(contact: _currentContact!, radius: 20),
-              SizedBox(width: 8),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
+                title: Row(
                   children: [
-                    Text(
-                      _currentContact!.name,
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    Text(
-                      _currentContact!.phoneNumber,
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.grey[600],
+                    ContactAvatar(contact: _currentContact!, radius: 20),
+                    SizedBox(width: 8),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            _currentContact!.name,
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          Text(
+                            _currentContact!.phoneNumber,
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.grey[600],
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ],
                 ),
-              ),
-            ],
-          ),
-          actions: [
-            IconButton(
-              icon: Icon(Icons.clear),
-              onPressed: () {
-                setState(() {
-                  _currentContact = null;
-                });
-              },
-              tooltip: 'Clear current contact',
-            ),
-          ],
-        )
+                actions: [
+                  IconButton(
+                    icon: Icon(Icons.clear),
+                    onPressed: () {
+                      setState(() {
+                        _currentContact = null;
+                      });
+                    },
+                    tooltip: 'Clear current contact',
+                  ),
+                ],
+              )
             : null,
         body: widgetOptions[_selectedIndex],
         bottomNavigationBar: BottomNavigationBar(

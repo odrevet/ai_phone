@@ -266,7 +266,6 @@ class _ContactsViewState extends State<ContactsView> {
               if (mounted) {
                 Navigator.pop(context);
               }
-
             },
             child: Text('Delete', style: TextStyle(color: Colors.red)),
           ),

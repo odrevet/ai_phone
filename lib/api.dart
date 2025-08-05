@@ -1,11 +1,11 @@
 import 'dart:convert';
-import 'dart:developer' as developer;
+
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 Future<Map<String, dynamic>> sendChatCompletion(
-    List<Map<String, String>> conversationHistory,
-    ) async {
+  List<Map<String, String>> conversationHistory,
+) async {
   final prefs = await SharedPreferences.getInstance();
   final apiAddress = prefs.getString('openai_api_address');
 
@@ -20,9 +20,9 @@ Future<Map<String, dynamic>> sendChatCompletion(
 
 // Updated TTS function that throws exceptions instead of logging
 Future<dynamic> sendTtsGenerateRequest(
-    String messageContent,
-    String? voice,
-    ) async {
+  String messageContent,
+  String? voice,
+) async {
   final prefs = await SharedPreferences.getInstance();
   final ttsApiAddress = prefs.getString('tts_api_address');
   final selectedVoice = (voice != null && voice.trim().isNotEmpty)
@@ -46,7 +46,7 @@ Future<dynamic> sendTtsGenerateRequest(
   };
   final headers = {
     'Authorization':
-    'Bearer ${ttsApiKey?.trim().isNotEmpty == true ? ttsApiKey : 'your_api_key_here'}',
+        'Bearer ${ttsApiKey?.trim().isNotEmpty == true ? ttsApiKey : 'your_api_key_here'}',
     'Content-Type': 'application/json',
   };
 
@@ -62,10 +62,10 @@ Future<dynamic> sendTtsGenerateRequest(
   } else {
     // Throw detailed error information
     throw Exception(
-        'TTS request failed with status ${response.statusCode}. '
-            'Response: ${response.body}. '
-            'Request body: $body. '
-            'Headers: $headers'
+      'TTS request failed with status ${response.statusCode}. '
+      'Response: ${response.body}. '
+      'Request body: $body. '
+      'Headers: $headers',
     );
   }
 }

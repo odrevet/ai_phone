@@ -22,10 +22,10 @@ class SettingsState extends State<Settings> {
   final TextEditingController _openAIController = TextEditingController();
   final TextEditingController _ttsController = TextEditingController();
   final TextEditingController _generationModelController =
-  TextEditingController();
+      TextEditingController();
   final TextEditingController _voiceController = TextEditingController();
   final TextEditingController _apiKeyGenerationController =
-  TextEditingController();
+      TextEditingController();
   final TextEditingController _apiKeyTtsController = TextEditingController();
   bool _debugMode = false;
   bool _disableThinking = true; // Default to true (disabled)
@@ -105,8 +105,11 @@ class SettingsState extends State<Settings> {
                 child: DropdownButton<String>(
                   isExpanded: true,
                   underline: SizedBox.shrink(),
-                  value: widget.currentLocaleId.isNotEmpty &&
-                      widget.localeNames.any((l) => l.localeId == widget.currentLocaleId)
+                  value:
+                      widget.currentLocaleId.isNotEmpty &&
+                          widget.localeNames.any(
+                            (l) => l.localeId == widget.currentLocaleId,
+                          )
                       ? widget.currentLocaleId
                       : null,
                   hint: Text('Select speech recognition language'),
@@ -118,10 +121,10 @@ class SettingsState extends State<Settings> {
                   items: widget.localeNames
                       .map(
                         (localeName) => DropdownMenuItem(
-                      value: localeName.localeId,
-                      child: Text(localeName.name),
-                    ),
-                  )
+                          value: localeName.localeId,
+                          child: Text(localeName.name),
+                        ),
+                      )
                       .toList(),
                 ),
               ),
@@ -165,7 +168,7 @@ class SettingsState extends State<Settings> {
                 controller: _generationModelController,
                 decoration: InputDecoration(
                   hintText:
-                  'Enter generation model (e.g., gpt-4, claude-3-sonnet)',
+                      'Enter generation model (e.g., gpt-4, claude-3-sonnet)',
                 ),
               ),
               SizedBox(height: 30),
@@ -206,7 +209,7 @@ class SettingsState extends State<Settings> {
                 controller: _voiceController,
                 decoration: InputDecoration(
                   hintText:
-                  'Enter speech model (e.g., whisper-1, speech-to-text-v1)',
+                      'Enter speech model (e.g., whisper-1, speech-to-text-v1)',
                 ),
               ),
               SizedBox(height: 16),
